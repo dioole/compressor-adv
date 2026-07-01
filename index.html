@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Compressor</title>
+<title>Compactr</title>
+<link rel="icon" href="favicon.ico" type="icon/x-icon">
 <script>
 /*! JSZip 3.10.1 — bundled for offline use (MIT/GPLv3) */
 /*!
@@ -533,9 +534,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     position: relative; overflow: hidden;
     margin-bottom: 20px; padding: 28px;
     border-radius: 28px;
+    /* The frosted look comes from this translucent black over the pre-blurred, position:fixed
+       background blob. A backdrop-filter here would re-sample the backdrop every scroll frame for
+       every card (a 50px blur kernel), which is what made scrolling stutter — so it's intentionally
+       omitted. Over the dark gradient the result is visually identical but composites once. */
     background: var(--bg-black-glass);
-    backdrop-filter: blur(50px) saturate(100%);
-    -webkit-backdrop-filter: blur(50px) saturate(100%);
     border: 1px solid var(--accent-edge);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   }
@@ -790,6 +793,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .item.anim { animation: slideIn 0.3s var(--ease-spring) !important; }
   .item[draggable="true"] { cursor: grab; }
   .item.dragging { opacity: 0.35; }
+  .item.selected { background: rgba(255,255,255,0.10); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.45); border-radius: 12px; border-bottom-color: transparent; }
+  .item { border-radius: 12px; }
   .grip { flex: none; color: var(--text-dim); font-size: 13px; opacity: 0.45; letter-spacing: -2px; cursor: grab; transition: opacity 0.15s ease; -webkit-user-select: none; user-select: none; }
   .item:hover .grip { opacity: 0.85; }
 
@@ -829,7 +834,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 <div id="ctxMenu"></div>
 
 <div class="wrap">
-  <header><h1>Compressor</h1><span>v2 - minh</span></header>
+  <header><h1>Compactr</h1><span>v2 - minh</span></header>
 
   <!-- Drop zone Card -->
   <div class="card">
@@ -922,7 +927,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       <!-- Updated: Download button also uses liquid glass style -->
       <div class="dl"><button class="go" id="download" type="button" style="font-size:15px;padding:12px 30px; width: auto;">Download zip</button></div>
     </div>
-    <div class="note">Runs fully offline. PDFs are rebuilt smaller (best on scans &amp; image-heavy files); Office docs keep their format with embedded photos recompressed; text-type files are zip-compressed. Nothing is ever made larger.</div>
+    <div class="note">work-in-progress</div>
   </div>
 </div>
 
@@ -932,9 +937,59 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   const drop = $('drop'), list = $('list'), listWrap = $('listWrap'), overlay = $('overlay');
   let idSeq = 0;
   let draggingKind = null, draggingId = null, folderSeq = 0;
+  let draggingIds = [];       // all entry ids being dragged (supports multi-select drag)
+  let lastClickedId = null;   // anchor for shift-range selection
+  let forcePdfRaster = false; // target mode sets this to rasterize text PDFs when the target can't be met otherwise
   const seen = new Set(); // entry ids that have already played their slide-in animation
-  const resetDrag = () => { state.internalDrag = false; draggingKind = null; draggingId = null; };
-  const state = { entries: [], folders: [], mode: 'quality', fmt: 'image/jpeg', zipBlob: null, busy: false, internalDrag: false };
+  const resetDrag = () => { state.internalDrag = false; draggingKind = null; draggingId = null; draggingIds = []; stopAutoScroll(); };
+  const state = { entries: [], folders: [], mode: 'quality', fmt: 'image/jpeg', zipBlob: null, busy: false, internalDrag: false, selected: new Set() };
+
+  /* ---------- multi-file selection (click to select, ⌘/Ctrl-click to toggle, Shift-click for a range) ---------- */
+  const orderedRowIds = () => [...list.querySelectorAll('.item')].map(r => +r.dataset.eid);
+  function updateSelectionUI() {
+    for (const id of [...state.selected]) if (!state.entries.some(e => e.id === id)) state.selected.delete(id);
+    list.querySelectorAll('.item').forEach(r => r.classList.toggle('selected', state.selected.has(+r.dataset.eid)));
+  }
+  function selectRange(fromId, toId, additive) {
+    const order = orderedRowIds();
+    let a = order.indexOf(fromId), b = order.indexOf(toId);
+    if (a < 0 || b < 0) { state.selected.add(toId); return; }
+    if (a > b) { const t = a; a = b; b = t; }
+    if (!additive) state.selected.clear();
+    for (let i = a; i <= b; i++) state.selected.add(order[i]);
+  }
+  function clickSelect(id, ev) {
+    if (ev.shiftKey && lastClickedId != null) selectRange(lastClickedId, id, ev.metaKey || ev.ctrlKey);
+    else if (ev.metaKey || ev.ctrlKey) { state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id); lastClickedId = id; }
+    else { state.selected.clear(); state.selected.add(id); lastClickedId = id; }
+    updateSelectionUI();
+  }
+
+  // While dragging a file, auto-scroll the window when the pointer nears the top/bottom of the
+  // viewport so folders above/below the current scroll position become reachable. A generous edge
+  // band (so it's easy to hit without precise aiming) that shrinks on short screens; speed ramps up
+  // toward the very edge. The page scrolls on the window (no inner scroll container).
+  const SCROLL_EDGE = 150, SCROLL_MIN = 7, SCROLL_MAX = 32;
+  let autoScrollRAF = null, autoScrollVy = 0;
+  function stopAutoScroll() { autoScrollVy = 0; if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; } }
+  function autoScrollTick() {
+    if (!state.internalDrag || autoScrollVy === 0) { autoScrollRAF = null; return; }
+    window.scrollBy(0, autoScrollVy);
+    autoScrollRAF = requestAnimationFrame(autoScrollTick);
+  }
+  // ramp from a usable minimum at the band's inner edge up to full speed at the very edge, so anywhere
+  // in the band scrolls at a good pace (not just the last few pixels).
+  const rampSpeed = (dist, edge) => SCROLL_MIN + Math.ceil((SCROLL_MAX - SCROLL_MIN) * (edge - dist) / edge);
+  // Capture phase: the folder/list dragover handlers call stopPropagation, so a bubble-phase
+  // listener here would never fire. Capturing runs us first, before any stopPropagation.
+  document.addEventListener('dragover', e => {
+    if (draggingKind !== 'file') return;
+    const h = window.innerHeight, edge = Math.min(SCROLL_EDGE, h * 0.32), y = e.clientY;
+    if (y < edge) autoScrollVy = -rampSpeed(y, edge);
+    else if (y > h - edge) autoScrollVy = rampSpeed(h - y, edge);
+    else autoScrollVy = 0;
+    if (autoScrollVy !== 0 && !autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollTick);
+  }, true);
 
   const fmtBytes = n => {
     if (n < 1024) return n + ' B';
@@ -1117,24 +1172,28 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   async function ensurePdf(entry, onPage) {
-    if (entry._pdfAnalyzed) return;
+    if (entry._pages && entry._pages.length) return;              // already rendered
+    if (entry._pdfAnalyzed && entry._pdfKeepOriginal && !forcePdfRaster) return; // decided to keep it whole, and not being forced
     entry._pdfAnalyzed = true;
     if (!window.pdfjsLib) { entry._pdfKeepOriginal = true; return; }
     const data = await entry.file.arrayBuffer();
     const pdf = await window.pdfjsLib.getDocument({ data, disableAutoFetch: true, disableStream: true }).promise;
-    const N = pdf.numPages, BASE_DPI = 150, sc = BASE_DPI / 72;
+    const N = pdf.numPages, BASE_DPI = forcePdfRaster ? 135 : 150, sc = BASE_DPI / 72;
     // Sample up to 3 spread-out pages to estimate the rasterized size before committing to all N.
     const idxs = [...new Set([1, Math.ceil(N / 2), N])].filter(i => i >= 1 && i <= N);
     const cache = new Map(); let sampleTotal = 0;
     setStatus('Analyzing PDF…');
     for (const p of idxs) { const r = await renderPdfPage(pdf, p, sc); cache.set(p, r); sampleTotal += r.jpeg.size; }
     const estRebuilt = (sampleTotal / idxs.length) * N;
-    if (estRebuilt >= entry.file.size * 0.8) { // wouldn't save ≥20% → not worth rasterizing (and would lose text)
+    // Normally: if rasterizing wouldn't save ≥20% we keep the original (preserves crisp, selectable
+    // text). But when forcePdfRaster is set (target mode couldn't otherwise hit the target), we
+    // rasterize anyway — flattening the PDF to page images is the only way to shrink a text/vector PDF.
+    if (!forcePdfRaster && estRebuilt >= entry.file.size * 0.8) {
       entry._pdfKeepOriginal = true; entry._pages = null;
       try { await pdf.destroy(); } catch (_) {}
       return;
     }
-    // Worthwhile (scanned / image-heavy): render every page, reusing the samples.
+    // Worthwhile (scanned / image-heavy) OR forced: render every page, reusing the samples.
     const pages = [];
     for (let p = 1; p <= N; p++) { if (onPage) onPage(p, N); pages.push(cache.get(p) || await renderPdfPage(pdf, p, sc)); }
     entry._pages = pages; entry._pdfKeepOriginal = false;
@@ -1161,6 +1220,80 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       doc.addImage(dataUrl, 'JPEG', 0, 0, pg.ptW, pg.ptH, undefined, 'FAST');
     }
     return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
+  }
+
+  // Cheap size estimate for a rasterized PDF at (quality, scale): encode a spread of representative
+  // cached pages and extrapolate to all N. Lets the target search pick a page scale without
+  // re-encoding the whole document on every probe (a 469-page book would otherwise take dozens of
+  // full passes). More samples → tighter estimate → the search can safely fill more of the budget.
+  async function estimateRasterPdfBytes(entry, quality, scale, samples) {
+    const pages = entry._pages; if (!pages || !pages.length) return entry.file.size;
+    const N = pages.length, S = Math.max(1, Math.min(samples || 6, N));
+    const idxs = [...new Set(Array.from({ length: S }, (_, k) => Math.round(k * (N - 1) / Math.max(1, S - 1))))];
+    let sum = 0;
+    for (const i of idxs) {
+      const pg = pages[i], bmp = await createImageBitmap(pg.jpeg);
+      const w = Math.max(1, Math.round(pg.pxW * scale)), h = Math.max(1, Math.round(pg.pxH * scale));
+      const c = new OffscreenCanvas(w, h), ctx = c.getContext('2d', { alpha: false });
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, 0, 0, w, h);
+      if (bmp.close) bmp.close();
+      const bl = await c.convertToBlob({ type: 'image/jpeg', quality });
+      sum += bl.size;
+    }
+    return (sum / idxs.length) * N * 1.02; // ~2% for the PDF container/xref overhead
+  }
+
+  // Efficient, clarity-maximizing target fit for when a text/vector PDF must be flattened to hit the
+  // target. Images/Office are encoded once at high clarity; the rest of the budget goes to the PDF(s).
+  // For each PDF we BINARY-SEARCH the largest page scale whose estimated size still fits its share of
+  // the budget — i.e. the highest resolution the target allows — since for text, resolution drives
+  // legibility far more than JPEG quality. Then one full render + one full page-encode per PDF (the
+  // estimate avoids re-rasterizing the whole book on every probe). We fill ~98% of the target.
+  async function fitRasterPdfToTarget(targetBytes, onPass) {
+    const pdfs = state.entries.filter(e => e.kind === 'pdf');
+    const budget = targetBytes * 0.98; // fill tightly; the real-zip guard in go() trims rare overshoot
+    const Q_IMG = 0.85, Q_PDF = 0.75;  // keep JPEG quality solid; spend the budget on resolution
+    // 1) Render each PDF once (cached), so both the estimate and the final encode reuse the same pages.
+    for (const e of pdfs) await ensurePdf(e, (p, n) => onPass(1, p, n));
+    // 2) Encode everything that ISN'T a PDF once, at good clarity — small next to the PDF.
+    await encodeAll(Q_IMG, 1, (d, n) => onPass(2, d, n), false, true /* skipPdf */);
+    const nonPdfBytes = state.entries.reduce((s, e) => s + (e.kind !== 'pdf' ? (e.out ? e.out.size : e.file.size) : 0), 0);
+    // 3) Split the leftover budget across PDFs by page count; find the max scale that fits; encode once.
+    const pdfBudget = Math.max(0, budget - nonPdfBytes);
+    const totalPages = pdfs.reduce((s, e) => s + (e._pages ? e._pages.length : 0), 0) || 1;
+    let lastScale = 1;
+    for (const e of pdfs) {
+      if (!e._pages || !e._pages.length) { e.out = { blob: e.file, size: e.file.size, name: e.rel }; continue; }
+      const share = pdfBudget * (e._pages.length / totalPages);
+      let best;
+      if (await estimateRasterPdfBytes(e, Q_PDF, 1, 8) <= share) {
+        best = 1; // full base resolution already fits — best possible clarity for this DPI
+      } else {
+        let lo = 0.15, hi = 1; best = 0.15;
+        for (let i = 0; i < 8; i++) { // binary-search the largest scale under the share
+          const m = (lo + hi) / 2;
+          if (await estimateRasterPdfBytes(e, Q_PDF, m, 6) <= share) { best = m; lo = m; } else hi = m;
+        }
+      }
+      lastScale = best;
+      onPass(3, 0, 1);
+      let blob = await compressPdf(e, Q_PDF, best);
+      let real = blob ? blob.size : e.file.size;
+      // Measured correction: the estimate is intentionally conservative, so if the real encode came in
+      // well under this PDF's share, scale the pages UP once (using the real size, not the estimate) to
+      // spend the leftover budget on resolution — the single biggest lever for text clarity. Only kept
+      // if it still fits the share, so we never blow the target.
+      if (blob && real < share * 0.90 && best < 0.97) {
+        const up = Math.min(1, best * Math.sqrt((share * 0.97) / Math.max(1, real)));
+        if (up > best * 1.03) {
+          onPass(3, 0, 1);
+          const blob2 = await compressPdf(e, Q_PDF, up);
+          if (blob2 && blob2.size < e.file.size && blob2.size <= share) { blob = blob2; best = up; lastScale = up; }
+        }
+      }
+      e.out = (!blob || blob.size >= e.file.size) ? { blob: e.file, size: e.file.size, name: e.rel } : { blob, size: blob.size, name: e.rel };
+    }
+    return { q: Q_PDF, scale: lastScale };
   }
 
   // ---- Office (docx/xlsx/pptx/odt…): they're zip containers; recompress embedded JPEG photos in place,
@@ -1202,9 +1335,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   // process every compressible file in parallel (images via the worker pool, PDFs + Office alongside);
   // returns the projected total bytes for all files
-  async function encodeAll(quality, scale, onProg, once) {
+  async function encodeAll(quality, scale, onProg, once, skipPdf) {
     const type = state.fmt;
-    const comps = state.entries.filter(isCompressible);
+    const comps = state.entries.filter(e => isCompressible(e) && !(skipPdf && e.kind === 'pdf'));
     let done = 0, idx = 0;
     const CONC = Math.max(2, Math.min(8, navigator.hardwareConcurrency || 4));
     async function runOne(e) {
@@ -1371,6 +1504,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   function removeEntry(id) {
     const i = state.entries.findIndex(e => e.id === id); if (i < 0) return;
     const [rm] = state.entries.splice(i, 1);
+    state.selected.delete(id);
     if (rm.thumbUrl) URL.revokeObjectURL(rm.thumbUrl);
     if (useWorkers && rm.wk && rm.loaded) getPool().call(rm.wk, { cmd: 'free', id: rm.id });
     if (rm.bmp && rm.bmp.close) rm.bmp.close();
@@ -1385,7 +1519,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const grip = document.createElement('span'); grip.className = 'grip'; grip.textContent = '⠿'; grip.setAttribute('aria-hidden', 'true');
     let t;
     if (e.img) {
-      t = document.createElement('img'); t.className = 'thumb'; t.loading = 'lazy'; t.decoding = 'async'; t.alt = '';
+      t = document.createElement('img'); t.className = 'thumb'; t.loading = 'lazy'; t.decoding = 'async'; t.alt = ''; t.draggable = false;
       if (!e.thumbUrl) e.thumbUrl = URL.createObjectURL(e.file);
       t.src = e.thumbUrl;
     } else { t = document.createElement('div'); t.className = 'thumb'; t.textContent = fileIcon(e); }
@@ -1396,12 +1530,23 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const x = document.createElement('button'); x.className = 'x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Remove ' + e.rel);
     x.onclick = ev => { ev.stopPropagation(); removeEntry(e.id); };
     row.append(grip, t, meta, x);
+    row.addEventListener('click', ev => { if (ev.target.closest('.x')) return; ev.stopPropagation(); clickSelect(e.id, ev); });
     row.addEventListener('dragstart', ev => {
-      draggingKind = 'file'; draggingId = e.id; state.internalDrag = true;
-      ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', 'file'); } catch (_) {}
-      row.classList.add('dragging'); ev.stopPropagation();
+      // Dragging a row that isn't selected makes it the sole selection (familiar file-manager behavior);
+      // dragging a selected row carries the whole selection.
+      if (!state.selected.has(e.id)) { state.selected.clear(); state.selected.add(e.id); lastClickedId = e.id; updateSelectionUI(); }
+      draggingKind = 'file'; draggingId = e.id; draggingIds = [...state.selected]; state.internalDrag = true;
+      ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', 'files'); } catch (_) {}
+      list.querySelectorAll('.item').forEach(r => { if (draggingIds.includes(+r.dataset.eid)) r.classList.add('dragging'); });
+      if (draggingIds.length > 1 && ev.dataTransfer.setDragImage) {
+        const badge = document.createElement('div'); badge.className = 'drag-badge'; badge.textContent = `${draggingIds.length} files`;
+        badge.style.cssText = 'position:absolute;top:-1000px;left:-1000px;padding:8px 14px;border-radius:999px;background:rgba(20,20,20,0.94);color:#fff;font:600 13px sans-serif;border:1px solid rgba(255,255,255,0.28);box-shadow:0 6px 18px rgba(0,0,0,0.5)';
+        document.body.appendChild(badge); ev.dataTransfer.setDragImage(badge, 24, 20);
+        setTimeout(() => badge.remove(), 0);
+      }
+      ev.stopPropagation();
     });
-    row.addEventListener('dragend', () => { resetDrag(); row.classList.remove('dragging'); clearHighlights(); });
+    row.addEventListener('dragend', () => { resetDrag(); list.querySelectorAll('.item.dragging').forEach(r => r.classList.remove('dragging')); clearHighlights(); });
     return row;
   }
 
@@ -1433,9 +1578,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     wrap.addEventListener('dragleave', ev => { if (!wrap.contains(ev.relatedTarget)) wrap.classList.remove('drop-target'); });
     wrap.addEventListener('drop', ev => {
       if (draggingKind !== 'file') return; ev.preventDefault(); ev.stopPropagation(); wrap.classList.remove('drop-target');
-      const ent = state.entries.find(x => x.id === draggingId);
-      const moved = ent && ent.folderId !== folder.id;
-      if (moved) { ent.folderId = folder.id; folder.collapsed = false; }
+      const ids = draggingIds.length ? draggingIds : (draggingId != null ? [draggingId] : []);
+      let moved = false;
+      for (const id of ids) { const ent = state.entries.find(x => x.id === id); if (ent && ent.folderId !== folder.id) { ent.folderId = folder.id; moved = true; } }
+      if (moved) folder.collapsed = false;
       resetDrag();
       if (moved) { state.zipBlob = null; render(); } else clearHighlights();
     });
@@ -1459,16 +1605,20 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     childFolders(null).forEach(f => frag.appendChild(makeFolderNode(f)));
     rootFiles().forEach(e => frag.appendChild(makeFileRow(e)));
     list.replaceChildren(frag);
+    updateSelectionUI();
   }
+
+  // click empty list space (not a file row) to clear the selection
+  list.addEventListener('click', ev => { if (!ev.target.closest('.item') && state.selected.size) { state.selected.clear(); updateSelectionUI(); } });
 
   // drag a file onto empty list space (the root) to pull it back out of a folder
   list.addEventListener('dragover', ev => { if (draggingKind !== 'file') return; ev.preventDefault(); list.classList.add('root-drop'); });
   list.addEventListener('dragleave', ev => { if (!list.contains(ev.relatedTarget)) list.classList.remove('root-drop'); });
   list.addEventListener('drop', ev => {
     if (draggingKind !== 'file') return; ev.preventDefault(); ev.stopPropagation(); list.classList.remove('root-drop');
-    const ent = state.entries.find(x => x.id === draggingId);
-    const moved = ent && ent.folderId !== null;
-    if (moved) ent.folderId = null;
+    const ids = draggingIds.length ? draggingIds : (draggingId != null ? [draggingId] : []);
+    let moved = false;
+    for (const id of ids) { const ent = state.entries.find(x => x.id === id); if (ent && ent.folderId !== null) { ent.folderId = null; moved = true; } }
     resetDrag();
     if (moved) { state.zipBlob = null; render(); } else clearHighlights();
   });
@@ -1573,53 +1723,63 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   const setStatus = m => { $('status').textContent = m; };
   const setProg = (p, msg) => { $('progBar').style.width = Math.round(p * 100) + '%'; if (msg !== undefined) setStatus(msg); };
 
-  // Target search: probe at a high-clarity quality cap and a low quality, fit each image's
-  // size = C·q^k from those two points, then solve for the largest quality that fits the budget.
-  // The cap (qMax) is deliberately below 1.0: re-encoding to WebP/JPEG at ~1.0 is often LARGER
-  // than an already-compressed source, which would make a comfortably-under-target batch come out
-  // unchanged. Capping at 0.82 keeps clarity high while guaranteeing real savings. 1–3 encode passes.
+  // Target search: find the highest quality whose total stays just under the target by BISECTING on
+  // the actually-measured encoded size (size is monotonic in quality), seeded by a power-law guess so
+  // it usually settles in one or two refinements. Working from real measurements (not a formula) means
+  // no model error to oscillate around. Quality is capped at 0.92 — re-encoding near 1.0 can be larger
+  // than the source — which keeps clarity high while guaranteeing real savings.
   async function fitToTarget(targetBytes, onPass) {
     const comps = state.entries.filter(isCompressible);
     const fixed = state.entries.reduce((s, e) => s + (isCompressible(e) ? 0 : e.file.size), 0);
-    const budget = targetBytes * 0.94; // leave ~6% headroom for zip overhead; the guard enforces the hard cap
-    const qHi = 0.92, qLo = 0.42;
+    const budget = targetBytes * 0.96; // aim close to the target; the real-zip guard trims any overshoot
+    let qLo = 0.30, qHi = 0.92;
 
-    // Probe at the high-clarity cap. If the batch already fits here, this is the best possible quality.
-    let total = await encodeAll(qHi, 1, (d, n) => onPass(1, d, n));
-    if (total <= budget) return { q: qHi, scale: 1 };
-    const sHi = new Map(comps.map(e => [e.id, Math.max(1, e.out.size)]));
+    // Max quality first — if even that fits, it's the best possible result (one pass).
+    let tHi = await encodeAll(qHi, 1, (d, n) => onPass(1, d, n));
+    if (tHi <= budget) return { q: qHi, scale: 1 };
 
-    // Probe low quality.
-    total = await encodeAll(qLo, 1, (d, n) => onPass(2, d, n));
-    const sLo = new Map(comps.map(e => [e.id, Math.max(1, e.out.size)]));
-
-    if (total > budget) {
+    // Lowest quality we'll allow at full resolution.
+    let tLo = await encodeAll(qLo, 1, (d, n) => onPass(2, d, n));
+    if (tLo > budget) {
       // Too big even at low quality and full size → shrink dimensions (size ≈ ∝ scale²).
-      const scale = Math.max(0.05, Math.min(1, Math.sqrt(Math.max(0, budget - fixed) / Math.max(1, total - fixed))));
+      const scale = Math.max(0.05, Math.min(1, Math.sqrt(Math.max(0, budget - fixed) / Math.max(1, tLo - fixed))));
       await encodeAll(qLo, scale, (d, n) => onPass(3, d, n));
       return { q: qLo, scale };
     }
 
-    // Fit size = C·q^k per file, then binary-search quality against the model (pure arithmetic).
-    const k = new Map(), C = new Map();
-    for (const e of comps) {
-      let ki = Math.log(sHi.get(e.id) / sLo.get(e.id)) / Math.log(qHi / qLo);
-      if (!isFinite(ki) || ki < 0) ki = 0;
-      ki = Math.min(ki, 8);
-      k.set(e.id, ki);
-      C.set(e.id, sHi.get(e.id) / Math.pow(qHi, ki));
+    // Bisect quality against the measured total. Keep the largest quality that stays within budget;
+    // stop early once we're filling the budget (quality is effectively maxed for this target).
+    let best = { q: qLo, t: tLo }, lastQ = qLo;
+    let k = Math.log(tHi / Math.max(1, tLo)) / Math.log(qHi / qLo); if (!isFinite(k) || k <= 0) k = 1.5;
+    for (let i = 0; i < 5; i++) {
+      const q = (i === 0)
+        ? Math.min(qHi - 0.01, Math.max(qLo + 0.01, qLo * Math.pow(budget / Math.max(1, tLo), 1 / k))) // power-law seed
+        : (qLo + qHi) / 2;                                                                              // then plain bisection
+      const t = await encodeAll(q, 1, (d, n) => onPass(3, d, n));
+      lastQ = q;
+      if (t <= budget) { best = { q, t }; qLo = q; } else { qHi = q; }
+      if (best.t >= budget * 0.92 || qHi - qLo < 0.02) break;
     }
-    const estimate = q => {
-      let s = fixed;
-      for (const e of comps) s += C.get(e.id) * Math.pow(q, k.get(e.id));
-      return s;
-    };
-    let lo = qLo, hi = qHi;
-    for (let i = 0; i < 26; i++) { const m = (lo + hi) / 2; if (estimate(m) <= budget) lo = m; else hi = m; }
-    const q = lo;
+    if (lastQ !== best.q) await encodeAll(best.q, 1, () => {}); // leave the outputs encoded at the chosen quality
+    return { q: best.q, scale: 1 };
+  }
 
-    await encodeAll(q, 1, (d, n) => onPass(3, d, n));
-    return { q, scale: 1 };
+  // Real-zip safety net: nudge quality (then dimensions) down until the ACTUAL zip is under target,
+  // keeping the best under-target result. A couple of passes at most. Used after each target search.
+  async function tightenToFit(targetBytes, q, scale) {
+    let gq = q, gs = scale, guard = 0;
+    let best = state.zipBlob.size <= targetBytes ? state.zipBlob : null;
+    while (state.zipBlob.size > targetBytes && guard < 3) {
+      guard++;
+      const over = state.zipBlob.size / targetBytes;
+      if (gq > 0.10) gq = Math.max(0.08, gq / Math.pow(over, 0.72));
+      else gs = Math.max(0.04, gs / Math.sqrt(over));
+      setProg(.95, `Tightening to fit ${(targetBytes / 1048576).toFixed(0)} MB…`);
+      await encodeAll(gq, gs, () => {});
+      state.zipBlob = await buildZip();
+      if (state.zipBlob.size <= targetBytes) best = state.zipBlob;
+    }
+    if (state.zipBlob.size > targetBytes && best) state.zipBlob = best; // never ship over target
   }
 
   $('go').onclick = async () => {
@@ -1627,7 +1787,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     state.busy = true; $('go').disabled = true; $('result').style.display = 'none';
     $('prog').style.display = 'block'; setProg(0, 'Preparing…');
     const t0 = performance.now();
-    let overTargetBy = 0;
+    let overTargetBy = 0, rasterizedPdf = false;
     try {
       if (state.mode === 'quality') {
         const q = +$('qSlider').value / 100;
@@ -1636,31 +1796,28 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         state.zipBlob = await buildZip();
       } else {
         const targetBytes = Math.max(0.1, +$('targetMB').value || 10) * 1048576;
-        const { q, scale } = await fitToTarget(targetBytes, (pass, d, n) => setProg(Math.min(.9, ((pass - 1) + (n ? d / n : 0)) / 3.2), `Finding the right quality… (step ${pass} of 3)`));
+        const onPass = (pass, d, n) => setProg(Math.min(.9, ((pass - 1) + (n ? d / n : 0)) / 3.2), `Finding the right quality… (step ${pass} of 3)`);
+        let { q, scale } = await fitToTarget(targetBytes, onPass);
         setProg(.92, 'Packing zip…');
         state.zipBlob = await buildZip();
-        // Converge the REAL zip size to just under the target. Tighten if over; lift quality to use
-        // the leftover budget if we undershot (keeps as much quality as the target allows). Each step
-        // uses the measured size, so it settles in one or two passes. We remember the best result that
-        // came in under target and finish on it, so the output is never larger than the target.
-        let gq = q, gs = scale, guard = 0;
-        let best = state.zipBlob.size <= targetBytes ? { blob: state.zipBlob, size: state.zipBlob.size } : null;
-        while (guard < 3) {
-          const size = state.zipBlob.size;
-          if (size > targetBytes) {                                       // over → tighten
-            const over = size / targetBytes;
-            if (gq > 0.10) gq = Math.max(0.08, gq / Math.pow(over, 0.72));
-            else gs = Math.max(0.04, gs / Math.sqrt(over));
-          } else if (size < targetBytes * 0.85 && gs >= 1 && gq < 0.92) { // well under → lift quality to fill the budget (one decisive step)
-            gq = Math.min(0.92, gq * Math.pow((targetBytes * 0.95) / Math.max(1, size), 0.8));
-          } else break;                                                   // comfortably within budget → done
-          guard++;
-          setProg(.95, `Dialing in to ${(targetBytes / 1048576).toFixed(0)} MB…`);
-          await encodeAll(gq, gs, () => {});
+        await tightenToFit(targetBytes, q, scale);
+
+        // Escalation: if we're still over target only because a PDF is being kept whole (a text/vector
+        // PDF the engine won't rasterize by default, to protect its selectable text), the target is
+        // below the sum of the untouched originals. The only way to hit it is to flatten that PDF to
+        // page images. We rasterize it and search again — fitToTarget then picks the highest page
+        // resolution and quality the budget allows, so clarity stays as high as the target permits.
+        if (state.zipBlob.size > targetBytes && !forcePdfRaster &&
+            state.entries.some(e => e.kind === 'pdf' && e._pdfKeepOriginal)) {
+          forcePdfRaster = true; rasterizedPdf = true;
+          setProg(.4, 'Rasterizing PDF pages to hit the target…');
+          for (const e of state.entries) if (e.kind === 'pdf' && e._pdfKeepOriginal) { e._pdfAnalyzed = false; e._pages = null; e._pdfKeepOriginal = false; }
+          ({ q, scale } = await fitRasterPdfToTarget(targetBytes, onPass));
+          setProg(.92, 'Packing zip…');
           state.zipBlob = await buildZip();
-          if (state.zipBlob.size <= targetBytes && (!best || state.zipBlob.size > best.size)) best = { blob: state.zipBlob, size: state.zipBlob.size };
+          await tightenToFit(targetBytes, q, scale);
+          forcePdfRaster = false;
         }
-        if (state.zipBlob.size > targetBytes && best) state.zipBlob = best.blob; // never ship over target
         overTargetBy = Math.max(0, state.zipBlob.size - targetBytes);
       }
       const before = state.entries.reduce((s, e) => s + e.file.size, 0);
@@ -1670,6 +1827,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       const secs = ((performance.now() - t0) / 1000).toFixed(1);
       let msg = (saved > 0.5 ? `zip is ${saved.toFixed(0)}% smaller than the originals` : 'already as small as it gets') + ` · ${secs}s`;
       if (overTargetBy > 0) msg = `couldn't reach the target — ${fmtBytes(state.zipBlob.size)} is the smallest these files compress to · ${secs}s`;
+      else if (rasterizedPdf) msg += ' · PDF flattened to page images to fit';
       $('savedPct').textContent = msg;
       setProg(1, '');
       $('result').style.display = 'block';
@@ -1681,11 +1839,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       // Release any cached bitmaps (target mode loads them into workers for multi-pass probing) so a
       // batch of 18MP photos doesn't keep ~1.3GB of decoded pixels resident between runs.
       for (const e of state.entries) {
-        if (e.loaded && useWorkers && e.wk) getPool().call(e.wk, { cmd: 'free', id: e.id });
+        if (e.loaded && poolReady() && e.wk) { try { getPool().call(e.wk, { cmd: 'free', id: e.id }); } catch (_) {} }
         if (e.bmp && e.bmp.close) e.bmp.close();
         e.bmp = null; e.loaded = false; e._loadP = null;
       }
       state.busy = false; $('go').disabled = !state.entries.length;
+      forcePdfRaster = false;
       setTimeout(() => { $('prog').style.display = 'none'; }, 600);
     }
   };

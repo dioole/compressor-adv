@@ -915,7 +915,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   <!-- Action Card -->
   <div class="card">
-    <button class="go" id="go" type="button" disabled>Compress</button>
+    <button class="go" id="go" type="button" disabled>Compact</button>
     <div class="progress" id="prog"><i id="progBar"></i></div>
     <div class="status" id="status"></div>
 
@@ -1730,40 +1730,55 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // it usually settles in one or two refinements. Working from real measurements (not a formula) means
   // no model error to oscillate around. Quality is capped at 0.92 — re-encoding near 1.0 can be larger
   // than the source — which keeps clarity high while guaranteeing real savings.
+  // Target search — prioritize CLARITY while landing just under the target. Two levers: JPEG quality
+  // and resolution. For photos, quality below ~0.7 gets blocky, so we hold a quality FLOOR and reduce
+  // resolution instead of crushing quality. Everything is measured (not modeled), so it fills the
+  // budget accurately and consistently instead of undershooting to a tiny, low-quality file.
+  //   • If max quality (0.94) already fits at full res → done, best possible.
+  //   • Else if the quality floor fits at full res → bisect quality UP to fill the budget at full res.
+  //   • Else → keep quality at the floor and DOWNSCALE just enough to fit (then one measured tweak).
   async function fitToTarget(targetBytes, onPass) {
-    const comps = state.entries.filter(isCompressible);
-    const fixed = state.entries.reduce((s, e) => s + (isCompressible(e) ? 0 : e.file.size), 0);
-    const budget = targetBytes * 0.96; // aim close to the target; the real-zip guard trims any overshoot
-    let qLo = 0.30, qHi = 0.92;
+    const budget = targetBytes * 0.97;          // fill tightly; the real-zip guard trims rare overshoot
+    const Q_FLOOR = 0.72, Q_HI = 0.94;          // never drop JPEG quality below the floor — downscale instead
 
-    // Max quality first — if even that fits, it's the best possible result (one pass).
-    let tHi = await encodeAll(qHi, 1, (d, n) => onPass(1, d, n));
-    if (tHi <= budget) return { q: qHi, scale: 1 };
+    // 1) Highest sensible quality, full resolution. If it fits, nothing beats it.
+    let tHi = await encodeAll(Q_HI, 1, (d, n) => onPass(1, d, n));
+    if (tHi <= budget) return { q: Q_HI, scale: 1 };
 
-    // Lowest quality we'll allow at full resolution.
-    let tLo = await encodeAll(qLo, 1, (d, n) => onPass(2, d, n));
-    if (tLo > budget) {
-      // Too big even at low quality and full size → shrink dimensions (size ≈ ∝ scale²).
-      const scale = Math.max(0.05, Math.min(1, Math.sqrt(Math.max(0, budget - fixed) / Math.max(1, tLo - fixed))));
-      await encodeAll(qLo, scale, (d, n) => onPass(3, d, n));
-      return { q: qLo, scale };
+    // 2) Quality floor, full resolution.
+    let tFloor = await encodeAll(Q_FLOOR, 1, (d, n) => onPass(2, d, n));
+    if (tFloor <= budget) {
+      // Full res fits at the floor → bisect quality upward to spend the rest of the budget on fidelity.
+      let lo = Q_FLOOR, hi = Q_HI, best = { q: Q_FLOOR, t: tFloor }, lastQ = Q_FLOOR;
+      for (let i = 0; i < 6; i++) {
+        const q = (lo + hi) / 2;
+        const t = await encodeAll(q, 1, (d, n) => onPass(3, d, n));
+        lastQ = q;
+        if (t <= budget) { best = { q, t }; lo = q; } else hi = q;
+        if (best.t >= budget * 0.94 || hi - lo < 0.015) break; // budget essentially full → quality maxed for this target
+      }
+      if (lastQ !== best.q) await encodeAll(best.q, 1, () => {});
+      return { q: best.q, scale: 1 };
     }
 
-    // Bisect quality against the measured total. Keep the largest quality that stays within budget;
-    // stop early once we're filling the budget (quality is effectively maxed for this target).
-    let best = { q: qLo, t: tLo }, lastQ = qLo;
-    let k = Math.log(tHi / Math.max(1, tLo)) / Math.log(qHi / qLo); if (!isFinite(k) || k <= 0) k = 1.5;
-    for (let i = 0; i < 5; i++) {
-      const q = (i === 0)
-        ? Math.min(qHi - 0.01, Math.max(qLo + 0.01, qLo * Math.pow(budget / Math.max(1, tLo), 1 / k))) // power-law seed
-        : (qLo + qHi) / 2;                                                                              // then plain bisection
-      const t = await encodeAll(q, 1, (d, n) => onPass(3, d, n));
-      lastQ = q;
-      if (t <= budget) { best = { q, t }; qLo = q; } else { qHi = q; }
-      if (best.t >= budget * 0.92 || qHi - qLo < 0.02) break;
+    // 3) Even at the floor, full res is too big → hold quality at the floor and DOWNSCALE to fit.
+    //    Solve the image scale from the measured floor sizes (images ≈ ∝ scale²; non-image bytes stay
+    //    put), then one measured correction so we sit just under the budget at the best resolution.
+    const imgBytes = state.entries.reduce((s, e) => s + (e.kind === 'image' && e.out ? e.out.size : 0), 0);
+    const nonImg = Math.max(0, tFloor - imgBytes);
+    let scale = Math.max(0.1, Math.min(1, Math.sqrt(Math.max(1, budget - nonImg) / Math.max(1, imgBytes))));
+    let t = await encodeAll(Q_FLOOR, scale, (d, n) => onPass(3, d, n));
+    if (t > budget) {                                   // overshot → shrink a touch
+      scale = Math.max(0.06, scale * Math.sqrt((budget * 0.97) / Math.max(1, t)));
+      await encodeAll(Q_FLOOR, scale, () => {});
+    } else if (t < budget * 0.88) {                     // well under → grow to fill the budget (sharper)
+      const up = Math.min(1, scale * Math.sqrt((budget * 0.97) / Math.max(1, t)));
+      if (up > scale * 1.03) {
+        const t2 = await encodeAll(Q_FLOOR, up, () => {});
+        if (t2 <= budget) scale = up; else await encodeAll(Q_FLOOR, scale, () => {}); // revert if it overshot
+      }
     }
-    if (lastQ !== best.q) await encodeAll(best.q, 1, () => {}); // leave the outputs encoded at the chosen quality
-    return { q: best.q, scale: 1 };
+    return { q: Q_FLOOR, scale };
   }
 
   // Real-zip safety net: nudge quality (then dimensions) down until the ACTUAL zip is under target,

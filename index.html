@@ -458,9 +458,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 <style>
   /* --- BASE & RESET --- */
   :root {
-    --text-bright: #ffffff;
-    --text-dim: rgba(255, 255, 255, 0.6);
-    --accent-edge: rgba(255, 255, 255, 0.12);
+    --ink: 255, 255, 255;
+    --text-bright: rgb(var(--ink));
+    --text-dim: rgba(var(--ink), 0.6);
+    --accent-edge: rgba(var(--ink), 0.12);
     --bg-black-glass: rgba(0, 0, 0, 0.75);
     /* Smooth Apple-style easing */
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
@@ -491,18 +492,18 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   .blob {
     position: absolute; border-radius: 50%;
-    filter: blur(100px); opacity: 0.5;
+    opacity: 0.5; will-change: transform;
     animation: moveLiquid 25s infinite alternate ease-in-out;
   }
 
   .blob-1 {
-    background: linear-gradient(45deg, #000000, #222222);
+    background: radial-gradient(closest-side, rgba(30,30,30,0.9), rgba(22,22,22,0.5) 40%, rgba(14,14,14,0.18) 70%, transparent 100%);
     width: 70vmax; height: 70vmax; top: -20%; left: -20%;
     animation-duration: 30s;
   }
 
   .blob-2 {
-    background: linear-gradient(45deg, #0a0a0a, #333333);
+    background: radial-gradient(closest-side, rgba(40,40,40,0.85), rgba(28,28,28,0.45) 40%, rgba(16,16,16,0.16) 70%, transparent 100%);
     width: 60vmax; height: 60vmax; bottom: -10%; right: -20%;
     animation-duration: 25s; opacity: 0.4;
   }
@@ -526,7 +527,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   header h1 {
     font-family: "SF Pro Display", sans-serif;
     font-size: 26px; font-weight: 700; letter-spacing: -0.02em;
-    color: #fff;
+    color: rgb(var(--ink));
   }
 
   header span { font-size: 13px; color: var(--text-dim); }
@@ -547,19 +548,18 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   /* --- COMPONENTS: DROP ZONE --- */
   .drop {
-    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border: 1px dashed rgba(var(--ink), 0.2);
     border-radius: 20px; padding: 35px 20px;
     text-align: center; cursor: pointer;
     background: rgba(0,0,0,0.3);
-    transition: all .3s var(--ease-smooth);
+    transition: border-color .3s var(--ease-smooth), background-color .3s var(--ease-smooth);
   }
   .drop.over, .drop:hover {
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
+    border-color: rgba(var(--ink), 0.5);
+    background: rgba(var(--ink), 0.08);
   }
-  .drop .icon { font-size: 32px; display: block; margin-bottom: 12px; filter: grayscale(1); opacity: 0.8; }
-  .drop p { font-size: 15px; font-weight: 600; color: #fff; }
+  .drop .icon { display: block; margin-bottom: 12px; color: rgb(var(--ink)); opacity: 0.85; line-height: 0; }
+  .drop p { font-size: 15px; font-weight: 600; color: rgb(var(--ink)); }
   .drop small { display: block; margin-top: 8px; font-size: 13px; color: var(--text-dim); }
   .drop-actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 
@@ -568,28 +568,26 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .btn, .go {
     appearance: none; cursor: pointer; font: inherit;
     font-size: 14px; font-weight: 700; padding: 12px 26px; border-radius: 999px;
-    color: white; 
+    color: rgb(var(--ink)); 
     
     /* Liquid Glass Style */
-    background: rgba(255, 255, 255, 0.08); /* Very sheer base */
-    backdrop-filter: blur(15px) saturate(120%);
-    -webkit-backdrop-filter: blur(15px) saturate(120%);
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Refractive edge */
+    background: rgba(var(--ink), 0.08); /* Very sheer base */
+    border: 1px solid rgba(var(--ink), 0.2); /* Refractive edge */
     
     /* Refractive inner light and outer shadow */
     box-shadow: 
-        inset 0 1px 2px rgba(255,255,255,0.3),
+        inset 0 1px 2px rgba(var(--ink), 0.3),
         inset 0 -1px 1px rgba(0,0,0,0.1),
         0 4px 15px rgba(0,0,0,0.3);
         
-    transition: all 0.3s var(--ease-smooth);
+    transition: background-color 0.3s var(--ease-smooth), box-shadow 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth);
     position: relative; z-index: 1;
   }
 
   .btn:hover, .go:hover {
-    background: rgba(255, 255, 255, 0.15); /* Brighter on hover */
+    background: rgba(var(--ink), 0.15); /* Brighter on hover */
     box-shadow: 
-        inset 0 1px 2px rgba(255,255,255,0.5),
+        inset 0 1px 2px rgba(var(--ink), 0.5),
         inset 0 -1px 1px rgba(0,0,0,0.1),
         0 8px 25px rgba(0,0,0,0.4);
     transform: translateY(-2px);
@@ -600,8 +598,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .go {
     width: 100%; font-size: 17px; padding: 16px; border-radius: 26px;
     /* Slightly more prominent glass for the main action */
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(var(--ink), 0.12);
+    border: 1px solid rgba(var(--ink), 0.25);
   }
   .go:disabled { opacity: 0.5; cursor: default; box-shadow: none; transform: none; filter: grayscale(1);}
 
@@ -610,17 +608,17 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .row {
     display: flex; align-items: center; justify-content: space-between;
     gap: 16px; padding: 16px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(var(--ink), 0.06);
   }
   .row:last-child { border-bottom: none; }
-  .row label.t { font-size: 14px; font-weight: 600; color: #fff; }
+  .row label.t { font-size: 14px; font-weight: 600; color: rgb(var(--ink)); }
   .row .hint { display: block; font-size: 12px; color: var(--text-dim); font-weight: 400; margin-top: 4px; }
 
   .seg {
     position: relative;
     display: inline-flex; background: rgba(0, 0, 0, 0.6);
     border-radius: 999px; padding: 4px; 
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(var(--ink), 0.08);
     overflow: hidden;
   }
 
@@ -630,12 +628,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     pointer-events: none;
     border-radius: 999px;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(var(--ink), 0.1);
     backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.3);
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: all 0.4s var(--ease-spring);
+    box-shadow: inset 0 1px 1px rgba(var(--ink), 0.3);
+    border: 1px solid rgba(var(--ink), 0.1);
+    transition: left 0.4s var(--ease-spring), width 0.4s var(--ease-spring);
   }
 
   .seg button {
@@ -646,22 +644,22 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     transition: color 0.3s ease;
   }
   .seg button.on {
-    color: #fff; font-weight: 600;
+    color: rgb(var(--ink)); font-weight: 600;
   }
 
   /* Inputs - Sleek & Thin */
   .num, .txt {
-    font: inherit; font-size: 14px; color: #fff;
+    font: inherit; font-size: 14px; color: rgb(var(--ink));
     background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(var(--ink), 0.1);
     border-radius: 12px; padding: 10px 14px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
-  .num:focus, .txt:focus { border-color: rgba(255,255,255,0.4); box-shadow: 0 0 15px rgba(255,255,255,0.1); outline: none; }
+  .num:focus, .txt:focus { border-color: rgba(var(--ink), 0.4); box-shadow: 0 0 15px rgba(var(--ink), 0.1); outline: none; }
   .num { width: 90px; text-align: right; }
   /* UPDATED: Use flex for symmetry, with max-width to prevent stretching too far */
   .txt { flex: 1; max-width: 240px; }
-  .val { min-width: 50px; text-align: right; font-weight: 700; font-size: 14px; color: #fff;}
+  .val { min-width: 50px; text-align: right; font-weight: 700; font-size: 14px; color: rgb(var(--ink));}
 
   /* Hiding the spinner arrows on the number input */
   input[type=number]::-webkit-inner-spin-button,
@@ -677,7 +675,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   input[type=range]:focus { outline: none; }
   input[type=range]::-webkit-slider-runnable-track {
     height: 4px; border-radius: 2px;
-    background: rgba(255,255,255,0.15);
+    background: rgba(var(--ink), 0.15);
   }
   /* UPDATED: The thumb is now a refractive glass orb */
   input[type=range]::-webkit-slider-thumb {
@@ -685,24 +683,24 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     height: 24px; width: 24px; border-radius: 50%;
     
     /* Glass Orb Style */
-    background: rgba(255,255,255,0.05);
+    background: rgba(var(--ink), 0.05);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.5);
-    box-shadow: inset 0 2px 3px rgba(255,255,255,0.7), 0 3px 8px rgba(0,0,0,0.4);
+    border: 1px solid rgba(var(--ink), 0.5);
+    box-shadow: inset 0 2px 3px rgba(var(--ink), 0.7), 0 3px 8px rgba(0,0,0,0.4);
     
     transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
   }
   input[type=range]:active::-webkit-slider-thumb {
       transform: scale(1.1);
-      box-shadow: inset 0 2px 3px rgba(255,255,255,0.8), 0 5px 12px rgba(0,0,0,0.5);
+      box-shadow: inset 0 2px 3px rgba(var(--ink), 0.8), 0 5px 12px rgba(0,0,0,0.5);
   }
 
   /* --- COMPONENTS: FILE LIST --- */
   .list { max-height: 260px; overflow: auto; margin-top: 20px; }
   .item {
     display: flex; align-items: center; gap: 14px;
-    padding: 10px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 10px 4px; border-bottom: 1px solid rgba(var(--ink), 0.06);
     animation: slideIn 0.3s var(--ease-spring);
   }
   @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -711,36 +709,36 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     width: 44px; height: 44px; border-radius: 12px; object-fit: cover;
     background: rgba(0,0,0,0.3); flex: none;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 20px; border: 1px solid rgba(var(--ink), 0.08);
     filter: grayscale(1) brightness(0.8);
   }
   .meta { flex: 1; min-width: 0; }
-  .meta .nm { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta .nm { font-size: 14px; font-weight: 600; color: rgb(var(--ink)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .meta .sz { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-  .meta .sz .after { color: #fff; font-weight: 700; }
+  .meta .sz .after { color: rgb(var(--ink)); font-weight: 700; }
   .x {
-    appearance: none; border: none; background: rgba(255, 255, 255, 0.05);
+    appearance: none; border: none; background: rgba(var(--ink), 0.05);
     color: var(--text-dim); width: 24px; height: 24px; border-radius: 50%;
-    cursor: pointer; font-size: 14px; flex: none; transition: all 0.2s;
+    cursor: pointer; font-size: 14px; flex: none; transition: background-color 0.2s, color 0.2s;
   }
-  .x:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+  .x:hover { background: rgba(var(--ink), 0.2); color: rgb(var(--ink)); }
   .list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px; }
-  .list-head b { font-size: 14px; color: #fff; }
+  .list-head b { font-size: 14px; color: rgb(var(--ink)); }
   .list-head button {
     font-size: 13px; background: none; border: none;
     color: var(--text-dim); cursor: pointer;
     text-decoration: underline; transition: color 0.2s;
   }
-  .list-head button:hover { color: #fff; }
+  .list-head button:hover { color: rgb(var(--ink)); }
 
   /* --- PROGRESS & RESULTS --- */
   .progress {
-    height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.05);
+    height: 4px; border-radius: 2px; background: rgba(var(--ink), 0.05);
     overflow: hidden; margin-top: 20px; display: none;
   }
   .progress i {
     display: block; height: 100%; width: 0%;
-    background: #fff;
+    background: rgb(var(--ink));
     transition: width .15s linear;
   }
   .status { font-size: 13px; color: var(--text-dim); text-align: center; margin-top: 12px; min-height: 18px; }
@@ -748,7 +746,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .result {
     display: none; margin-top: 25px; text-align: center;
     background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(var(--ink), 0.1);
     border-radius: 22px; padding: 24px;
     animation: popIn 0.4s var(--ease-spring);
   }
@@ -757,11 +755,17 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .result .flow { display: flex; align-items: center; justify-content: center; gap: 16px; }
   .result .big {
     font-family: "SF Pro Display", sans-serif; font-size: 26px;
-    font-weight: 800; letter-spacing: -0.03em; color: #fff;
+    font-weight: 800; letter-spacing: -0.03em; color: rgb(var(--ink));
   }
   .result .arrow { color: var(--text-dim); font-size: 20px; }
   .result .pct { margin-top: 8px; font-size: 14px; color: var(--text-dim); font-weight: 600;}
-  .result .dl { margin-top: 20px; }
+  .result .dl { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .result .dl .go { width: auto; font-size: 15px; padding: 12px 30px; }
+  .result .dl .btn { font-size: 15px; padding: 12px 26px; }
+  .meter { height: 4px; border-radius: 2px; background: rgba(var(--ink), 0.08); overflow: hidden; margin: 16px auto 0; max-width: 260px; }
+  .meter i { display: block; height: 100%; width: 100%; background: rgb(var(--ink)); border-radius: 2px; transition: width 0.7s var(--ease-spring); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 12px; }
+  .chip { font-size: 12px; color: var(--text-dim); padding: 5px 11px; border-radius: 999px; background: rgba(var(--ink), 0.05); border: 1px solid rgba(var(--ink), 0.08); }
   .note { font-size: 12px; color: var(--text-dim); opacity: 0.6; text-align: center; margin-top: 15px; line-height: 1.5; }
 
   /* --- OVERLAY --- */
@@ -774,9 +778,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   .overlay.show { display: flex; opacity: 1; }
   .overlay .panel {
-    border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 28px;
+    border: 2px dashed rgba(var(--ink), 0.3); border-radius: 28px;
     padding: 50px 60px; font-size: 22px; font-weight: 700; text-align: center;
-    background: rgba(10, 10, 10, 0.9); color: #fff;
+    background: rgba(10, 10, 10, 0.9); color: rgb(var(--ink));
     transform: scale(0.95); transition: transform 0.3s var(--ease-spring);
   }
   .overlay.show .panel { transform: scale(1); }
@@ -786,7 +790,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   /* Focus states for accessibility */
   .btn:focus-visible, .seg:focus-within, input:focus-visible, .drop:focus-visible {
       outline: none;
-      box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(255,255,255,0.5);
+      box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(var(--ink), 0.5);
   }
 
   /* --- FOLDERS (organize into the zip) --- */
@@ -795,58 +799,429 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .item.anim { animation: slideIn 0.3s var(--ease-spring) !important; }
   .item[draggable="true"] { cursor: grab; }
   .item.dragging { opacity: 0.35; }
-  .item.selected { background: rgba(255,255,255,0.10); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.45); border-radius: 12px; border-bottom-color: transparent; }
+  .item.selected { background: rgba(var(--ink), 0.10); box-shadow: inset 0 0 0 1.5px rgba(var(--ink), 0.45); border-radius: 12px; border-bottom-color: transparent; }
   .item { border-radius: 12px; }
   .grip { flex: none; color: var(--text-dim); font-size: 13px; opacity: 0.45; letter-spacing: -2px; cursor: grab; transition: opacity 0.15s ease; -webkit-user-select: none; user-select: none; }
   .item:hover .grip { opacity: 0.85; }
 
   .folder { border-radius: 14px; margin: 4px 0; transition: background 0.15s ease; }
-  .folder-head { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border-radius: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .folder-head:hover { background: rgba(255,255,255,0.04); }
-  .folder.drop-target { background: rgba(255,255,255,0.06); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.55); }
-  #list.root-drop { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25); border-radius: 16px; }
+  .folder-head { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border-radius: 12px; border-bottom: 1px solid rgba(var(--ink), 0.06); }
+  .folder-head:hover { background: rgba(var(--ink), 0.04); }
+  .folder.drop-target { background: rgba(var(--ink), 0.06); box-shadow: inset 0 0 0 1.5px rgba(var(--ink), 0.55); }
+  #list.root-drop { box-shadow: inset 0 0 0 1.5px rgba(var(--ink), 0.25); border-radius: 16px; }
   .chev { width: 16px; height: 16px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); font-size: 9px; transition: transform 0.2s var(--ease-smooth); }
   .chev.collapsed { transform: rotate(-90deg); }
   .ficon { width: 30px; height: 30px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 19px; }
-  .folder-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: #fff; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 5px 9px; outline: none; transition: background 0.15s ease, border-color 0.15s ease; }
-  .folder-name:hover { background: rgba(255,255,255,0.04); }
+  .folder-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: rgb(var(--ink)); background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 5px 9px; outline: none; transition: background 0.15s ease, border-color 0.15s ease; }
+  .folder-name:hover { background: rgba(var(--ink), 0.04); }
   .folder-name:focus { background: rgba(0,0,0,0.45); border-color: var(--accent-edge); }
   .folder-count { font-size: 12px; color: var(--text-dim); flex: none; white-space: nowrap; }
-  .fbtn { appearance: none; border: none; background: rgba(255,255,255,0.05); color: var(--text-dim); width: 26px; height: 26px; border-radius: 50%; cursor: pointer; flex: none; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease, color 0.15s ease; }
-  .fbtn:hover { background: rgba(255,255,255,0.2); color: #fff; }
-  .folder-body { padding-left: 16px; margin-left: 14px; border-left: 1px solid rgba(255,255,255,0.08); }
+  .fbtn { appearance: none; border: none; background: rgba(var(--ink), 0.05); color: var(--text-dim); width: 26px; height: 26px; border-radius: 50%; cursor: pointer; flex: none; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease, color 0.15s ease; }
+  .fbtn:hover { background: rgba(var(--ink), 0.2); color: rgb(var(--ink)); }
+  .folder-body { padding-left: 16px; margin-left: 14px; border-left: 1px solid rgba(var(--ink), 0.08); }
   .folder-body.collapsed { display: none; }
 
   #ctxMenu { position: fixed; z-index: 200; min-width: 184px; padding: 6px; border-radius: 14px; background: var(--bg-black-glass); backdrop-filter: blur(40px) saturate(140%); -webkit-backdrop-filter: blur(40px) saturate(140%); border: 1px solid var(--accent-edge); box-shadow: 0 18px 44px rgba(0,0,0,0.55); display: none; }
   #ctxMenu.show { display: block; animation: slideIn 0.15s var(--ease-spring); }
-  #ctxMenu button { display: flex; width: 100%; align-items: center; gap: 9px; background: none; border: none; color: #fff; font: inherit; font-size: 13px; font-weight: 500; padding: 9px 12px; border-radius: 9px; cursor: pointer; text-align: left; }
-  #ctxMenu button:hover { background: rgba(255,255,255,0.12); }
+  #ctxMenu button { display: flex; width: 100%; align-items: center; gap: 9px; background: none; border: none; color: rgb(var(--ink)); font: inherit; font-size: 13px; font-weight: 500; padding: 9px 12px; border-radius: 9px; cursor: pointer; text-align: left; }
+  #ctxMenu button:hover { background: rgba(var(--ink), 0.12); }
   #ctxMenu button.danger:hover { background: rgba(255,69,58,0.28); }
   #ctxMenu hr { border: none; border-top: 1px solid var(--accent-edge); margin: 5px 6px; }
+
+  /* --- ROW DETAILS: savings + compare --- */
+  .meta .sz .save { margin-left: 8px; color: rgb(var(--ink)); font-weight: 600; opacity: 0.85; }
+  .meta .sz .tagnote { margin-left: 8px; opacity: 0.75; }
+  .cmp {
+    appearance: none; flex: none; cursor: pointer; font: inherit; font-size: 12px; font-weight: 600;
+    color: rgb(var(--ink)); padding: 6px 12px; border-radius: 999px;
+    background: rgba(var(--ink), 0.08); border: 1px solid rgba(var(--ink), 0.16);
+    box-shadow: inset 0 1px 1px rgba(var(--ink), 0.25);
+    transition: background 0.2s ease;
+  }
+  .cmp:hover { background: rgba(var(--ink), 0.18); }
+  img.thumb.can-compare { cursor: zoom-in; }
+  .btn.sm { font-size: 13px; padding: 8px 16px; }
+
+  /* --- SELECTION BAR --- */
+  .selbar {
+    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 60;
+    transform: translate(-50%, 24px); opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 4px; padding: 6px 6px 6px 16px; border-radius: 999px;
+    background: rgba(12,12,12,0.86); backdrop-filter: blur(30px) saturate(140%); -webkit-backdrop-filter: blur(30px) saturate(140%);
+    border: 1px solid rgba(var(--ink), 0.16);
+    box-shadow: inset 0 1px 1px rgba(var(--ink), 0.18), 0 16px 40px rgba(0,0,0,0.6);
+    transition: transform 0.35s var(--ease-spring), opacity 0.2s ease;
+    max-width: calc(100vw - 20px); white-space: nowrap;
+  }
+  .selbar.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+  .selbar span { font-size: 13px; font-weight: 600; color: rgb(var(--ink)); margin-right: 6px; }
+  .selbar button { appearance: none; border: none; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; color: rgb(var(--ink)); padding: 9px 14px; border-radius: 999px; background: rgba(var(--ink), 0.08); transition: background 0.15s ease; }
+  .selbar button:hover { background: rgba(var(--ink), 0.2); }
+  .selbar button[data-act="done"] { background: transparent; color: var(--text-dim); }
+
+  /* --- BEFORE / AFTER VIEWER --- */
+  .viewer {
+    position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column;
+    background: rgba(0,0,0,0.9); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .viewer.show { display: flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .viewer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; flex: none; }
+  .viewer-title { min-width: 0; }
+  .viewer-title b { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .viewer-title span { display: block; font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+  .viewer-actions { display: flex; gap: 8px; flex: none; }
+  .viewer-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; }
+  .viewer-stage.zoomed:active { cursor: grabbing; }
+  .vcanvas { position: absolute; transform-origin: 0 0; will-change: transform; }
+  .vcanvas img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+  .vclip { position: absolute; inset: 0; }
+  .vdivider { position: absolute; top: 0; bottom: 0; width: 44px; margin-left: -22px; cursor: ew-resize; display: flex; align-items: center; justify-content: center; outline: none; }
+  .vdivider::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: rgba(var(--ink), 0.9); box-shadow: 0 0 0 1px rgba(0,0,0,0.35); }
+  .vknob {
+    position: relative; font-size: 13px; font-weight: 700; color: rgb(var(--ink)); letter-spacing: 1px; padding: 9px 10px; border-radius: 999px;
+    background: rgba(20,20,20,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(var(--ink), 0.5); box-shadow: inset 0 1px 2px rgba(var(--ink), 0.4), 0 4px 14px rgba(0,0,0,0.5);
+  }
+  .vdivider:focus-visible .vknob { box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(var(--ink), 0.6); }
+  .vtag { position: absolute; bottom: 14px; font-size: 12px; font-weight: 600; color: rgb(var(--ink)); padding: 6px 12px; border-radius: 999px; background: rgba(12,12,12,0.75); border: 1px solid rgba(var(--ink), 0.14); pointer-events: none; }
+  .vtag.l { left: 14px; } .vtag.r { right: 14px; }
+
+  /* --- SLIDER: filled track + Firefox --- */
+  input[type=range] { --fill: 90%; }
+  input[type=range]::-webkit-slider-runnable-track { background: linear-gradient(to right, rgba(var(--ink), 0.6) var(--fill), rgba(var(--ink), 0.15) var(--fill)); }
+  input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(var(--ink), 0.15); }
+  input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: rgba(var(--ink), 0.6); }
+  input[type=range]::-moz-range-thumb { height: 22px; width: 22px; border-radius: 50%; background: rgba(40,40,40,0.9); border: 1px solid rgba(var(--ink), 0.5); box-shadow: inset 0 2px 3px rgba(var(--ink), 0.7), 0 3px 8px rgba(0,0,0,0.4); }
+  .go:focus-visible, .x:focus-visible, .cmp:focus-visible, .fbtn:focus-visible, .selbar button:focus-visible, .list-head button:focus-visible { outline: none; box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(var(--ink), 0.5); }
+
+  /* --- TOUCH + SMALL SCREENS --- */
+  html { -webkit-text-size-adjust: 100%; }
+  body { min-height: 100dvh; -webkit-tap-highlight-color: transparent; padding-top: max(20px, env(safe-area-inset-top)); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  button, .drop, .item, .folder-head { touch-action: manipulation; }
+  @media (hover: none) {
+    .btn:hover, .go:hover { transform: none; background: rgba(var(--ink), 0.08); box-shadow: inset 0 1px 2px rgba(var(--ink), 0.3), inset 0 -1px 1px rgba(0,0,0,0.1), 0 4px 15px rgba(0,0,0,0.3); }
+    .go:hover { background: rgba(var(--ink), 0.12); }
+    .drop:hover { border-color: rgba(var(--ink), 0.2); background: rgba(0,0,0,0.3); backdrop-filter: none; }
+    .grip { display: none; }
+  }
+  @media (pointer: coarse) {
+    .x, .fbtn { width: 34px; height: 34px; }
+    .list-head button { padding: 8px 2px; }
+    .cmp { padding: 9px 14px; }
+    .num, .txt, .folder-name { font-size: 16px; } /* below 16px iOS zooms the page on focus */
+  }
+  @media (max-width: 560px) {
+    .wrap { width: 100%; padding: 0 12px calc(72px + env(safe-area-inset-bottom)); }
+    header { padding: 6px 8px 16px; }
+    .card { padding: 20px 18px; border-radius: 24px; margin-bottom: 14px; }
+    .drop { padding: 28px 14px; }
+    .drop-actions .btn { flex: 1; min-width: 130px; }
+    .row { flex-wrap: wrap; gap: 10px 12px; padding: 14px 0; }
+    .row label.t { flex: 1 1 100%; }
+    .row .seg { display: flex; width: 100%; }
+    .row .seg button { flex: 1; padding: 10px 8px; }
+    .row .txt { max-width: none; flex: 1 1 100%; }
+    .list { max-height: 46vh; max-height: 46dvh; }
+    .item { gap: 10px; }
+    .result { padding: 20px 16px; }
+    .result .big { font-size: 22px; }
+    .result .flow { gap: 10px; }
+    .result .dl { flex-direction: column; }
+    .result .dl .go, .result .dl .btn { width: 100%; }
+    .overlay .panel { padding: 36px 28px; font-size: 18px; margin: 0 16px; }
+    .viewer-top { padding: 10px 12px; }
+    .vtag { bottom: 10px; font-size: 11px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blob { animation: none; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+  .list-head button { white-space: nowrap; }
+  .list-head b { min-width: 0; }
+  @media (max-width: 560px) {
+    .grip { display: none; }
+    .cmp { font-size: 0; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; }
+    .cmp::before { content: "◐"; font-size: 16px; line-height: 1; }
+    .list-head { align-items: flex-start; gap: 10px; }
+    .list-head .head-actions { gap: 14px; flex: none; }
+  }
+
+  /* --- GLASS LIGHT: a rim highlight along each card's top edge, and a soft sheen under the pointer --- */
+  .card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(var(--ink), 0.2), rgba(var(--ink), 0) 34%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .card::after {
+    content: ""; position: absolute; left: -230px; top: -230px; width: 460px; height: 460px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(var(--ink), 0.065), transparent);
+    transform: translate(var(--mx, 0px), var(--my, 0px)); opacity: 0; transition: opacity 0.5s ease; will-change: transform;
+  }
+  .card.lit::after { opacity: 1; }
+
+  /* --- ICONS, NUMBERS, ROWS --- */
+  .thumb svg, .ficon svg { display: block; }
+  div.thumb { color: rgb(var(--ink)); filter: none; opacity: 0.8; }
+  .ficon { color: var(--text-dim); }
+  .meta .sz, .result .big, .val, .chip, .folder-count, #countLabel, .vtag, .viewer-title span { font-variant-numeric: tabular-nums; }
+  .item { content-visibility: auto; contain-intrinsic-size: auto 65px; transition: background-color 0.15s ease; }
+  @media (hover: hover) { .item:hover:not(.selected) { background: rgba(var(--ink), 0.035); } }
+  .list { scrollbar-width: thin; scrollbar-color: rgba(var(--ink), 0.22) transparent; }
+  .list::-webkit-scrollbar { width: 8px; }
+  .list::-webkit-scrollbar-thumb { background: rgba(var(--ink), 0.18); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+  .list::-webkit-scrollbar-thumb:hover { background: rgba(var(--ink), 0.32); background-clip: content-box; }
+
+  /* --- WORKING STATE --- */
+  .go.busy:disabled { opacity: 0.75; filter: none; }
+  .progress i { box-shadow: 0 0 12px rgba(var(--ink), 0.55); border-radius: 2px; }
+  .progress { position: relative; }
+  .progress::after {
+    content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(var(--ink), 0.22), transparent);
+    transform: translateX(-100%); animation: sweep 1.6s linear infinite;
+  }
+  @keyframes sweep { to { transform: translateX(100%); } }
+
+  /* --- HEADER: settings button + mode badge --- */
+  .head-right { display: flex; align-items: center; gap: 12px; height: 16px; } /* the 36px button overhangs, so the header keeps its original height */
+  .icon-btn {
+    appearance: none; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; flex: none;
+    display: flex; align-items: center; justify-content: center; color: var(--text-dim);
+    background: rgba(var(--ink), 0.06); border: 1px solid rgba(var(--ink), 0.14);
+    box-shadow: inset 0 1px 1px rgba(var(--ink), 0.2);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.4s var(--ease-spring);
+  }
+  .icon-btn:hover, .icon-btn[aria-expanded="true"] { color: rgb(var(--ink)); background: rgba(var(--ink), 0.12); }
+  .icon-btn[aria-expanded="true"] svg { transform: rotate(60deg); }
+  .icon-btn svg { transition: transform 0.5s var(--ease-spring); }
+  .icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(var(--ink), 0.5); }
+  .mode-pill { display: none; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: rgb(var(--ink)); padding: 4px 9px; border-radius: 999px; border: 1px solid rgba(var(--ink), 0.3); background: rgba(var(--ink), 0.06); }
+  html.gc .mode-pill { display: inline-block; }
+
+  /* --- SETTINGS CARD --- */
+  .settings { padding-top: 10px; padding-bottom: 10px; animation: slideIn 0.3s var(--ease-spring); }
+  .set-note { font-size: 12px; color: var(--text-dim); padding: 0 0 14px; }
+
+  /* --- MODE VISIBILITY --- */
+  html:not(.gc) .gc-only, html:not(.gc) #gcDrop, html:not(.gc) #newRp, html:not(.gc) .gc-split { display: none !important; }
+  html.gc .std-only, html.gc #drop, html.gc #addFolder, html.gc #clearAll, html.gc .overlay .panel { display: none !important; }
+
+  /* --- GC: RP name + locked output --- */
+  .rp-field { display: flex; align-items: stretch; flex: 1; max-width: 240px; border-radius: 12px; border: 1px solid rgba(var(--ink), 0.1); background: rgba(0,0,0,0.4); overflow: hidden; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+  .rp-field:focus-within { border-color: rgba(var(--ink), 0.4); box-shadow: 0 0 15px rgba(var(--ink), 0.1); }
+  .rp-field span { display: flex; align-items: center; padding: 0 4px 0 14px; font-size: 14px; font-weight: 700; color: rgb(var(--ink)); }
+  .rp-field input { flex: 1; min-width: 0; font: inherit; font-size: 14px; color: rgb(var(--ink)); background: transparent; border: none; outline: none; padding: 10px 14px 10px 2px; }
+  .gc-locked { font-size: 13px; font-weight: 600; color: var(--text-dim); text-align: right; }
+
+  /* --- GC: upload tiles --- */
+  .gc-drop { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .gc-tile {
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+    padding: 24px 14px 18px; border-radius: 20px; cursor: pointer;
+    border: 1px dashed rgba(var(--ink), 0.2); background: rgba(0,0,0,0.3);
+    transition: border-color .3s var(--ease-smooth), background-color .3s var(--ease-smooth);
+  }
+  .gc-tile:hover, .gc-tile.over { border-color: rgba(var(--ink), 0.5); background: rgba(var(--ink), 0.08); }
+  .gc-tile.filled { border-style: solid; border-color: rgba(var(--ink), 0.22); }
+  .gc-tile:focus-visible { outline: none; box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(var(--ink), 0.5); }
+  .gc-tile .gc-ico { color: rgb(var(--ink)); opacity: 0.85; line-height: 0; margin-bottom: 4px; }
+  .gc-tile b { font-size: 15px; font-weight: 700; color: rgb(var(--ink)); }
+  .gc-tile .gc-sub { font-size: 12px; color: var(--text-dim); min-height: 16px; font-variant-numeric: tabular-nums; }
+  .gc-acts { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 10px; }
+  .gc-more { appearance: none; background: none; border: none; cursor: pointer; font: inherit; font-size: 12px; color: var(--text-dim); text-decoration: underline; padding: 4px; visibility: hidden; }
+  .gc-tile.filled .gc-more { visibility: visible; }
+  .gc-more:hover { color: rgb(var(--ink)); }
+  .folder.fixed .fbtn { display: none; }
+  .folder.fixed .folder-name { pointer-events: none; }
+
+  /* --- GC: drop overlay split into the two folders --- */
+  .gc-split { display: flex; gap: 16px; width: min(760px, 92vw); height: min(340px, 60vh); }
+  .gc-half {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    border: 2px dashed rgba(var(--ink), 0.3); border-radius: 28px; background: rgba(10,10,10,0.9);
+    font-size: 22px; font-weight: 700; color: rgb(var(--ink)); transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.3s var(--ease-spring);
+  }
+  .gc-half small { font-size: 14px; font-weight: 500; color: var(--text-dim); }
+  .gc-half.hot { border-color: rgba(var(--ink), 0.85); background: rgba(var(--ink), 0.08); transform: scale(1.02); }
+
+  #rain { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+
+  @media (max-width: 560px) {
+    .gc-drop { gap: 10px; }
+    .gc-tile { padding: 20px 10px 14px; }
+    .rp-field { max-width: none; flex: 1 1 100%; }
+    .gc-locked { text-align: left; }
+    .gc-split { flex-direction: column; height: 70vh; }
+  }
+
+  /* =============================================================================================
+     THEMES 1 + 2 — a terminal from the Matrix. Same layout and controls, rebuilt in monospace with
+     square corners, phosphor glow and digital rain behind the cards. 1 is green, 2 is the same in
+     black & white. Every colour above is drawn from --ink, so the switch is one variable.
+     ============================================================================================= */
+  html.t1 { --ink: 0, 255, 65; --bg-black-glass: rgba(0, 6, 2, 0.86); --accent-edge: rgba(0, 255, 65, 0.28); }
+  html.t2 { --ink: 235, 235, 235; --bg-black-glass: rgba(0, 0, 0, 0.86); --accent-edge: rgba(235, 235, 235, 0.26); }
+  html.mx { --text-dim: rgba(var(--ink), 0.62); }
+  html.mx body { font-family: "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", "Courier New", monospace; letter-spacing: 0; }
+  html.mx header h1, html.mx .result .big { font-family: inherit; letter-spacing: -0.01em; }
+  html.mx .blob { display: none; }
+  html.mx #rain { display: block; }
+
+  html.mx .card { border-radius: 6px; box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 0 28px rgba(var(--ink), 0.07), 0 20px 40px rgba(0,0,0,0.6); }
+  html.mx .card::before { background: linear-gradient(180deg, rgba(var(--ink), 0.35), rgba(var(--ink), 0) 30%); }
+  html.mx .drop, html.mx .gc-tile, html.mx .result, html.mx .overlay .panel, html.mx .gc-half { border-radius: 4px; }
+  html.mx .btn, html.mx .go, html.mx .seg, html.mx .seg-glider, html.mx .seg button, html.mx .num, html.mx .txt, html.mx .rp-field,
+  html.mx .chip, html.mx .x, html.mx .fbtn, html.mx .cmp, html.mx .item, html.mx .thumb, html.mx .folder, html.mx .folder-head,
+  html.mx .folder-name, html.mx #ctxMenu, html.mx #ctxMenu button, html.mx .selbar, html.mx .selbar button, html.mx .mode-pill,
+  html.mx .icon-btn, html.mx .vknob, html.mx .vtag { border-radius: 3px; }
+  html.mx .go { border-radius: 4px; }
+
+  /* phosphor glow on the text that matters */
+  html.mx header h1, html.mx .drop p, html.mx .gc-tile b, html.mx .row label.t, html.mx .val, html.mx .result .big,
+  html.mx .seg button.on, html.mx .go, html.mx .meta .nm, html.mx .list-head b, html.mx .gc-half, html.mx .overlay .panel { text-shadow: 0 0 8px rgba(var(--ink), 0.45); }
+  html.mx .progress i, html.mx .meter i { box-shadow: 0 0 10px rgba(var(--ink), 0.8); }
+
+  /* buttons read as terminal keys rather than glass */
+  html.mx .btn, html.mx .go { background: rgba(var(--ink), 0.06); border-color: rgba(var(--ink), 0.4); box-shadow: inset 0 0 12px rgba(var(--ink), 0.06); }
+  html.mx .btn:hover, html.mx .go:hover { background: rgba(var(--ink), 0.14); box-shadow: 0 0 16px rgba(var(--ink), 0.25), inset 0 0 12px rgba(var(--ink), 0.1); transform: none; }
+  html.mx .seg-glider { background: rgba(var(--ink), 0.16); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 0 10px rgba(var(--ink), 0.3); border-color: rgba(var(--ink), 0.5); }
+  html.mx .drop, html.mx .gc-tile { border-width: 1px; }
+  html.mx input[type=range]::-webkit-slider-thumb { border-radius: 2px; width: 14px; height: 22px; margin-top: -9px; background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: rgb(var(--ink)); box-shadow: 0 0 10px rgba(var(--ink), 0.6); }
+  html.mx input[type=range]::-moz-range-thumb { border-radius: 2px; width: 14px; height: 22px; background: #000; border-color: rgb(var(--ink)); box-shadow: 0 0 10px rgba(var(--ink), 0.6); }
+  html.mx .num:focus, html.mx .txt:focus, html.mx .rp-field:focus-within { box-shadow: 0 0 14px rgba(var(--ink), 0.25); }
+  html.mx ::selection { background: rgba(var(--ink), 0.35); color: #000; }
+
+  /* thumbnails take the screen's phosphor tint (the compare viewer always shows true colour) */
+  html.t1 img.thumb { filter: grayscale(1) sepia(1) hue-rotate(68deg) saturate(3.2) brightness(0.85) contrast(1.1); }
+  html.t2 img.thumb { filter: grayscale(1) brightness(0.9) contrast(1.1); }
+
+  /* a blinking cursor on the prompt */
+  html.mx .drop p::after, html.mx .gc-tile .gc-sub::after { content: "_"; margin-left: 2px; animation: caret 1.05s steps(1) infinite; }
+  @keyframes caret { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { html.mx .drop p::after, html.mx .gc-tile .gc-sub::after { animation: none; } }
+
+  /* fixes after review */
+  .settings .row label.t { flex: 1; min-width: 0; }
+  .settings .seg { flex: none; }
+  html.gc #colorRow { border-bottom: none; } /* last visible row in GC mode */
+  html.t1 { --bg-black-glass: rgba(0, 5, 2, 0.93); }
+  html.t2 { --bg-black-glass: rgba(0, 0, 0, 0.93); }
+  html.mx .drop, html.mx .gc-tile, html.mx .result { background: rgba(0, 0, 0, 0.55); }
+  html.mx button, html.mx input, html.mx select, html.mx textarea { font-family: inherit; }
+  @media (max-width: 560px) { .settings .row label.t { flex: 1 1 100%; } .settings .seg { width: 100%; } .settings .seg button { flex: 1; } }
+  html.mx header span:not(.mode-pill) { text-shadow: 0 0 4px #000, 0 0 10px #000, 0 0 16px #000; }
+
+  /* --- PROGRESS: a strip of digital rain, filled left to right (every theme) --- */
+  .progress { height: 42px; border-radius: 12px; background: rgba(0,0,0,0.35); border: 1px solid rgba(var(--ink), 0.1); margin-top: 18px; }
+  .progress::after { display: none; }
+  .progress i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: transparent; box-shadow: none; border-radius: 0;
+    border-right: 1px solid rgba(var(--ink), 0.75); box-shadow: 6px 0 14px -6px rgba(var(--ink), 0.7); transition: width .25s linear; }
+  #progRain { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  html.mx .progress { border-radius: 3px; }
+  html.mx .progress i { box-shadow: 8px 0 16px -6px rgba(var(--ink), 0.9); }
+
+  .seg button:disabled { opacity: 0.35; cursor: not-allowed; }
+  @media (pointer: coarse) { .rp-field input, .rp-field span { font-size: 16px; } } /* below 16px iOS zooms the page on focus */
+
+  /* while a job runs the list can't change: its controls dim instead of silently doing nothing */
+  html.busy .x, html.busy .fbtn, html.busy .cmp, html.busy .list-head button, html.busy .gc-tile, html.busy .drop,
+  html.busy #setupSeg, html.busy .item, html.busy .folder-head { opacity: 0.45; pointer-events: none; transition: opacity 0.2s ease; }
+  /* touch screens: every control at least ~36px tall (desktop sizes unchanged) */
+  @media (pointer: coarse) {
+    .gc-more { padding: 10px 12px; }
+    .list-head button { padding: 10px 4px; }
+    .seg button { min-height: 36px; }
+  }
 </style>
 </head>
 <body>
+<script>/* apply the saved theme + mode before first paint */
+try { var p = JSON.parse(localStorage.getItem('compactr.prefs.v1') || '{}'), h = document.documentElement;
+  if (p.theme === '1' || p.theme === '2') h.classList.add('mx', 't' + p.theme);
+  if (p.gc) h.classList.add('gc'); } catch (e) {}
+</script>
 <!-- The Dark Liquid Background -->
 <div class="liquid-background">
+    <canvas id="rain" aria-hidden="true"></canvas>
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
 </div>
 
-<div class="overlay" id="overlay"><div class="panel">Drop to add<small>images · PDFs · Office docs · folders · .zip</small></div></div>
+<div class="overlay" id="overlay"><div class="panel">Drop to add<small>images · PDFs · Office docs · folders · .zip</small></div>
+  <div class="gc-split" aria-hidden="true"><div class="gc-half" data-slot="condition">condition<small>replaces what's in this folder</small></div><div class="gc-half" data-slot="signature">signature<small>replaces what's in this folder</small></div></div></div>
 <div id="ctxMenu"></div>
 
+<!-- Selection bar: appears when files are selected (the way to organize on touch screens) -->
+<div class="selbar" id="selBar" role="toolbar" aria-label="Selected files">
+  <span id="selCount">1 selected</span>
+  <button type="button" data-act="move">Move to…</button>
+  <button type="button" data-act="remove">Remove</button>
+  <button type="button" data-act="done" aria-label="Clear selection">Done</button>
+</div>
+
+<!-- Before / after viewer -->
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Compare original and compressed" aria-hidden="true">
+  <div class="viewer-top">
+    <div class="viewer-title"><b id="vName"></b><span id="vInfo"></span></div>
+    <div class="viewer-actions">
+      <button class="btn sm" id="vZoom" type="button">Zoom in</button>
+      <button class="btn sm" id="vClose" type="button">Close</button>
+    </div>
+  </div>
+  <div class="viewer-stage" id="vStage">
+    <div class="vcanvas" id="vCanvas"><img id="vBefore" alt="Original" draggable="false"><div class="vclip" id="vClip"><img id="vAfter" alt="Compressed" draggable="false"></div></div>
+    <div class="vdivider" id="vDivider" role="slider" tabindex="0" aria-label="Comparison divider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="vknob">‹ ›</span></div>
+    <span class="vtag l" id="vTagL">Original</span><span class="vtag r" id="vTagR">Compressed</span>
+  </div>
+</div>
+
 <div class="wrap">
-  <header><h1></h1><span>built by minh</span></header>
+  <header><h1></h1><div class="head-right"><span class="mode-pill" id="modePill">GC</span><span>built by minh</span><button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settingsCard"></button></div></header>
+
+  <!-- Settings Card -->
+  <div class="card settings hidden" id="settingsCard">
+    <div class="row">
+      <label class="t">Theme</label>
+      <div class="seg" id="themeSeg">
+        <div class="seg-glider"></div>
+        <button class="on" data-theme="0" type="button">Default</button>
+        <button data-theme="1" type="button" aria-label="Theme 1">1</button>
+        <button data-theme="2" type="button" aria-label="Theme 2">2</button>
+      </div>
+    </div>
+    <div class="row">
+      <label class="t">Default mode<span class="hint">GC makes RP zips with condition and signature folders, in JPEG under 10 MB</span></label>
+      <div class="seg" id="setupSeg">
+        <div class="seg-glider"></div>
+        <button class="on" data-gc="0" type="button">Standard</button>
+        <button data-gc="1" type="button">GC</button>
+      </div>
+    </div>
+    <p class="set-note hidden" id="setNote">Switching mode clears the files in the list.</p>
+  </div>
 
   <!-- Drop zone Card -->
   <div class="card">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add images, PDFs, documents, folders, or zip files">
       <span class="icon">🗂️</span>
-      <p>Drop images, PDFs, documents, a folder, or a .zip anywhere</p>
-      <small>Images · PDF · Word · Excel · PowerPoint — zips and folders are opened and everything inside gets compressed</small>
+      <p id="dropTitle">Drop images, PDFs, documents, a folder, or a .zip anywhere</p>
+      <small id="dropHint">Images · PDF · Word · Excel · PowerPoint — zips and folders are opened and everything inside gets compressed</small>
       <div class="drop-actions">
         <button class="btn" id="pickFiles" type="button">Choose files</button>
         <button class="btn" id="pickFolder" type="button">Choose folder</button>
+      </div>
+    </div>
+    <!-- GC mode: one upload tile per folder -->
+    <div class="gc-drop" id="gcDrop">
+      <div class="gc-tile" data-slot="condition" tabindex="0" role="button" aria-label="Upload condition photos">
+        <span class="gc-ico"></span><b>condition</b><small class="gc-sub">Tap or drop photos</small>
+        <div class="gc-acts"><button class="btn sm" data-act="replace" type="button">Upload</button><button class="gc-more" data-act="add" type="button">Add more</button></div>
+      </div>
+      <div class="gc-tile" data-slot="signature" tabindex="0" role="button" aria-label="Upload signature photos">
+        <span class="gc-ico"></span><b>signature</b><small class="gc-sub">Tap or drop photos</small>
+        <div class="gc-acts"><button class="btn sm" data-act="replace" type="button">Upload</button><button class="gc-more" data-act="add" type="button">Add more</button></div>
       </div>
     </div>
     <input type="file" id="fileInput" accept="image/*,application/pdf,.pdf,.docx,.docm,.dotx,.xlsx,.xlsm,.xltx,.pptx,.pptm,.potx,.odt,.ods,.odp,.zip" multiple hidden>
@@ -858,6 +1233,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         <div class="head-actions">
           <button id="addFolder" type="button">+ Add folder</button>
           <button id="clearAll" type="button">Clear all</button>
+          <button id="newRp" type="button">New RP</button>
         </div>
       </div>
       <div class="list" id="list"></div>
@@ -866,7 +1242,16 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   <!-- Controls Card -->
   <div class="card">
-    <div class="row">
+    <div class="row gc-only">
+      <label class="t" for="rpNum">Zip name<span class="hint">always starts with RP</span></label>
+      <div class="rp-field"><span>RP</span><input type="text" id="rpNum" spellcheck="false" autocomplete="off" placeholder="number" aria-label="RP number"></div>
+    </div>
+    <div class="row gc-only">
+      <label class="t">Output<span class="hint">set by GC mode</span></label>
+      <span class="gc-locked">JPEG, under 10 MB</span>
+    </div>
+
+    <div class="row std-only">
       <label class="t">Mode<span class="hint">pick a quality, or let it hit a size</span></label>
       <div class="seg" id="modeSeg" role="tablist">
         <!-- The sliding glass element -->
@@ -876,13 +1261,13 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       </div>
     </div>
 
-    <div class="row" id="qualityRow">
-      <label class="t" for="qSlider">Compression</label>
+    <div class="row std-only" id="qualityRow">
+      <label class="t" for="qSlider">Compression<span class="hint">higher keeps more detail</span></label>
       <input type="range" id="qSlider" min="1" max="100" value="90" aria-label="Quality percent">
       <span class="val" id="qVal">90%</span>
     </div>
 
-    <div class="row hidden" id="targetRow">
+    <div class="row std-only hidden" id="targetRow">
       <label class="t" for="targetMB">Zip must be under<span class="hint">quality is found automatically</span></label>
       <!-- Updated: Right aligned container for symmetry -->
       <div style="display:flex; align-items:center; gap:8px; justify-content: flex-end; flex:1;">
@@ -892,7 +1277,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       </div>
     </div>
 
-    <div class="row">
+    <div class="row std-only">
       <label class="t">Output format<span class="hint">JPEG is fast & high-quality · WebP is smaller but slower</span></label>
       <div class="seg" id="fmtSeg">
         <!-- The sliding glass element -->
@@ -902,12 +1287,21 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="colorRow">
+      <label class="t">Colour<span class="hint">black & white makes photos and scans smaller</span></label>
+      <div class="seg" id="colorSeg">
+        <div class="seg-glider"></div>
+        <button class="on" data-gray="0" type="button">Original</button>
+        <button data-gray="1" type="button">Black & white</button>
+      </div>
+    </div>
+
+    <div class="row std-only">
       <label class="t" for="zipName">Zip name</label>
       <input class="txt" type="text" id="zipName" value="compressed-images" spellcheck="false">
     </div>
 
-    <div class="row">
+    <div class="row std-only">
       <label class="t" for="folderName">Outer folder<span class="hint">optional — wraps everything in one top folder</span></label>
       <input class="txt" type="text" id="folderName" placeholder="optional" spellcheck="false">
     </div>
@@ -916,8 +1310,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   <!-- Action Card -->
   <div class="card">
     <button class="go" id="go" type="button" disabled>Compact</button>
-    <div class="progress" id="prog"><i id="progBar"></i></div>
-    <div class="status" id="status"></div>
+    <div class="progress" id="prog" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><canvas id="progRain" aria-hidden="true"></canvas><i id="progBar"></i></div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
 
     <div class="result" id="result">
       <div class="flow">
@@ -925,9 +1319,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         <span class="arrow">→</span>
         <span class="big after-n" id="afterSize">—</span>
       </div>
+      <div class="meter" aria-hidden="true"><i id="meterBar"></i></div>
       <div class="pct" id="savedPct"></div>
-      <!-- Updated: Download button also uses liquid glass style -->
-      <div class="dl"><button class="go" id="download" type="button" style="font-size:15px;padding:12px 30px; width: auto;">Download zip</button><button class="btn" id="downloadFiles" type="button" style="font-size:15px;padding:12px 26px;margin-left:10px;">Download files</button></div>
+      <div class="chips" id="resultChips"></div>
+      <div class="dl"><button class="go" id="download" type="button">Download zip</button><button class="btn" id="downloadFiles" type="button">Download files</button></div>
     </div>
     <div class="note">work-in-progress</div>
   </div>
@@ -963,13 +1358,14 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   let forcePdfRaster = false; // target mode sets this to rasterize text PDFs when the target can't be met otherwise
   const seen = new Set(); // entry ids that have already played their slide-in animation
   const resetDrag = () => { state.internalDrag = false; draggingKind = null; draggingId = null; draggingIds = []; stopAutoScroll(); };
-  const state = { entries: [], folders: [], mode: 'quality', fmt: 'image/jpeg', zipBlob: null, busy: false, internalDrag: false, selected: new Set() };
+  const state = { entries: [], folders: [], mode: 'quality', fmt: 'image/jpeg', zipBlob: null, busy: false, internalDrag: false, selected: new Set(), gray: false, gc: false };
 
   /* ---------- multi-file selection (click to select, ⌘/Ctrl-click to toggle, Shift-click for a range) ---------- */
   const orderedRowIds = () => [...list.querySelectorAll('.item')].map(r => +r.dataset.eid);
   function updateSelectionUI() {
     for (const id of [...state.selected]) if (!state.entries.some(e => e.id === id)) state.selected.delete(id);
     list.querySelectorAll('.item').forEach(r => r.classList.toggle('selected', state.selected.has(+r.dataset.eid)));
+    updateSelBar();
   }
   function selectRange(fromId, toId, additive) {
     const order = orderedRowIds();
@@ -981,7 +1377,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   function clickSelect(id, ev) {
     if (ev.shiftKey && lastClickedId != null) selectRange(lastClickedId, id, ev.metaKey || ev.ctrlKey);
-    else if (ev.metaKey || ev.ctrlKey) { state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id); lastClickedId = id; }
+    else if (ev.metaKey || ev.ctrlKey || coarse) { state.selected.has(id) ? state.selected.delete(id) : state.selected.add(id); lastClickedId = id; }
     else { state.selected.clear(); state.selected.add(id); lastClickedId = id; }
     updateSelectionUI();
   }
@@ -1013,9 +1409,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }, true);
 
   const fmtBytes = n => {
-    if (n < 1024) return n + ' B';
-    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
-    return (n / 1048576).toFixed(2) + ' MB';
+    // decimal units (1 MB = 1,000,000 bytes): what macOS, phones and upload limits use — and the
+    // stricter reading, so "under 10 MB" here is under 10 MB everywhere
+    if (n < 1000) return n + ' B';
+    if (n < 1e6) return (n / 1000).toFixed(1) + ' KB';
+    return (n / 1e6).toFixed(2) + ' MB';
   };
   const extType = { jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp', gif:'image/gif', bmp:'image/bmp', avif:'image/avif' };
   const guessType = name => extType[(name.split('.').pop() || '').toLowerCase()] || '';
@@ -1032,47 +1430,117 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   const isCompressible = e => e.kind === 'image' || e.kind === 'pdf' || e.kind === 'office';
   const blobToDataURL = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+  const svg = (body, size) => `<svg viewBox="0 0 24 24" width="${size || 22}" height="${size || 22}" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+  const ICON = {
+    doc: label => svg(`<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/>` + (label ? `<text x="12" y="17.2" font-size="5.6" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,Segoe UI,sans-serif">${label}</text>` : ''), 26),
+    folder: svg('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>', 20),
+    folderOpen: svg('<path d="M3 17V7a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v1"/><path d="M3 17l2.2-5.6A2 2 0 0 1 7 10h13.5a1 1 0 0 1 .9 1.4L19 17a2 2 0 0 1-1.9 1.3H5A2 2 0 0 1 3 17Z"/>', 20),
+    layers: svg('<path d="M4 7.5 12 3l8 4.5-8 4.5-8-4.5Z"/><path d="m4 12 8 4.5 8-4.5"/><path d="m4 16.5 8 4.5 8-4.5"/>', 34),
+  };
   function fileIcon(e) {
-    if (e.kind === 'pdf') return '📕';
+    if (e.kind === 'pdf') return ICON.doc('PDF');
     const n = (e.rel || '').toLowerCase();
-    if (/\.(docx|docm|dotx|odt)$/.test(n)) return '📘';
-    if (/\.(xlsx|xlsm|xltx|ods)$/.test(n)) return '📗';
-    if (/\.(pptx|pptm|potx|odp)$/.test(n)) return '📙';
-    return '📄';
+    if (/\.(docx|docm|dotx|odt)$/.test(n)) return ICON.doc('DOC');
+    if (/\.(xlsx|xlsm|xltx|ods)$/.test(n)) return ICON.doc('XLS');
+    if (/\.(pptx|pptm|potx|odp)$/.test(n)) return ICON.doc('PPT');
+    return ICON.doc('');
+  }
+  document.querySelector('.drop .icon').innerHTML = ICON.layers;
+
+  /* ---------- thumbnails: small bitmaps made off the main thread ----------
+     Pointing a 44px <img> at the original makes the browser decode all 18 megapixels (and keep them
+     in memory) for every row, again on every list refresh. Instead each file gets one tiny JPEG. */
+  const thumbQ = []; let thumbBusy = 0;
+  function wantThumb(e) { if (e.thumbUrl || e._thumbQ) return; e._thumbQ = true; thumbQ.push(e); pumpThumbs(); }
+  function pumpThumbs() { while (thumbBusy < 2 && thumbQ.length) { thumbBusy++; makeThumb(thumbQ.shift()).finally(() => { thumbBusy--; pumpThumbs(); }); } }
+  async function makeThumb(e) {
+    try {
+      const bmp = await decodeImg(e.file, { resizeWidth: 132, resizeQuality: 'medium' });
+      const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+      const x = c.getContext('2d'); x.fillStyle = '#111'; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0); if (bmp.close) bmp.close();
+      e.thumbUrl = URL.createObjectURL(await new Promise(r => c.toBlob(r, 'image/jpeg', 0.8)));
+    } catch (_) { e.thumbUrl = URL.createObjectURL(e.file); } // formats createImageBitmap can't resize: let <img> handle it
+    if (!state.entries.includes(e)) { URL.revokeObjectURL(e.thumbUrl); e.thumbUrl = null; return; }
+    list.querySelectorAll(`.item[data-eid="${e.id}"] img.thumb`).forEach(i => { i.src = e.thumbUrl; });
+  }
+
+  /* ---------- pixel post-processing (shared by the workers and the main thread) ----------
+     Browsers downscale with a filter that is measurably softer than a Lanczos resize. A light unsharp
+     mask on the luma channel (calibrated against a Lanczos reference: +2.4 dB closer) restores the
+     lost crispness without halos. `gray` converts to black & white (Rec.709 luma). */
+  function sharpAmt(scale) { return scale >= 0.98 ? 0 : 0.3 * Math.min(1, (1 - scale) / 0.25); }
+  function postProcess(ctx, w, h, amount, gray) {
+    if (!(amount > 0) && !gray) return;
+    let img; try { img = ctx.getImageData(0, 0, w, h); } catch (_) { return; }
+    const d = img.data, n = w * h;
+    if (gray) for (let i = 0; i < d.length; i += 4) { const y = (d[i] * 54 + d[i + 1] * 183 + d[i + 2] * 19 + 128) >> 8; d[i] = d[i + 1] = d[i + 2] = y; }
+    if (amount > 0 && w > 2 && h > 2) {
+      const Y = new Uint8Array(n), T = new Uint16Array(n);
+      for (let i = 0, p = 0; i < n; i++, p += 4) Y[i] = (d[p] * 54 + d[p + 1] * 183 + d[p + 2] * 19 + 128) >> 8;
+      for (let y = 0; y < h; y++) { // horizontal [1 2 1]
+        const r = y * w; T[r] = Y[r] * 3 + Y[r + 1]; T[r + w - 1] = Y[r + w - 1] * 3 + Y[r + w - 2];
+        for (let x = 1; x < w - 1; x++) T[r + x] = Y[r + x - 1] + 2 * Y[r + x] + Y[r + x + 1];
+      }
+      const k = amount / 16;
+      for (let y = 0; y < h; y++) { // vertical [1 2 1], then add the detail back
+        const r = y * w, up = y ? r - w : r, dn = y < h - 1 ? r + w : r;
+        for (let x = 0; x < w; x++) {
+          const i = r + x, dv = (Y[i] * 16 - (T[up + x] + 2 * T[i] + T[dn + x])) * k;
+          if (dv > 0.5 || dv < -0.5) { const p = i * 4; d[p] += dv; d[p + 1] += dv; d[p + 2] += dv; }
+        }
+      }
+    }
+    ctx.putImageData(img, 0, 0);
   }
 
   /* ---------- worker pool ---------- */
   const useWorkers = (typeof Worker !== 'undefined') && (typeof OffscreenCanvas !== 'undefined');
+  // iPhone / iPad (incl. iPadOS reporting as a Mac): Safari refuses canvases over ~16.7 megapixels, so
+  // outputs there are capped just under it. Every other browser allows far larger canvases.
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const MAX_PX = isIOS ? 16.5e6 : 2.5e8;
+  // Safari can't encode WebP (it silently returns a PNG), so the option is only offered where it works.
+  const canWebp = (() => { try { const c = document.createElement('canvas'); c.width = c.height = 2; return c.toDataURL('image/webp').indexOf('data:image/webp') === 0; } catch (_) { return false; } })();
+  // decode with EXIF orientation applied; browsers that reject the option still decode (and most apply it by default)
+  const decodeImg = async (blob, opts) => { try { return await createImageBitmap(blob, Object.assign({ imageOrientation: 'from-image' }, opts || {})); } catch (_) { return createImageBitmap(blob); } };
   const workerSrc = `
+    ${sharpAmt.toString()}
+    ${postProcess.toString()}
     const cache = new Map();
+    const decodeImg = async (blob) => { try { return await createImageBitmap(blob, { imageOrientation: 'from-image' }); } catch (_) { return createImageBitmap(blob); } };
+    const capScale = (bmp, s, maxPx) => Math.min(s, Math.sqrt((maxPx || 2.5e8) / (bmp.width * bmp.height)));
     self.onmessage = async (e) => {
       const m = e.data;
       try {
         if (m.cmd === 'load') {
-          const bmp = await createImageBitmap(m.blob, { imageOrientation: 'from-image' });
+          const bmp = await decodeImg(m.blob);
           cache.set(m.id, bmp);
           self.postMessage({ reqId: m.reqId, ok: true, w: bmp.width, h: bmp.height });
         } else if (m.cmd === 'encode') {
           const bmp = cache.get(m.id);
           if (!bmp) { self.postMessage({ reqId: m.reqId, ok: false, err: 'nobitmap' }); return; }
-          const w = Math.max(1, Math.round(bmp.width * m.scale));
-          const h = Math.max(1, Math.round(bmp.height * m.scale));
+          const sc = capScale(bmp, m.scale, m.maxPx);
+          const w = Math.max(1, Math.round(bmp.width * sc));
+          const h = Math.max(1, Math.round(bmp.height * sc));
           const c = new OffscreenCanvas(w, h);
-          const ctx = c.getContext('2d');
+          const ctx = c.getContext('2d', { willReadFrequently: true });
           if (m.type === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); }
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(bmp, 0, 0, w, h);
+          postProcess(ctx, w, h, sharpAmt(sc), m.gray);
           const blob = await c.convertToBlob({ type: m.type, quality: m.quality });
           self.postMessage({ reqId: m.reqId, ok: true, blob, size: blob.size });
         } else if (m.cmd === 'encodeOnce') {
-          const bmp = await createImageBitmap(m.blob, { imageOrientation: 'from-image' });
-          const w = Math.max(1, Math.round(bmp.width * m.scale));
-          const h = Math.max(1, Math.round(bmp.height * m.scale));
+          const bmp = await decodeImg(m.blob);
+          const sc = capScale(bmp, m.scale, m.maxPx);
+          const w = Math.max(1, Math.round(bmp.width * sc));
+          const h = Math.max(1, Math.round(bmp.height * sc));
           const c = new OffscreenCanvas(w, h);
-          const ctx = c.getContext('2d', { alpha: m.type !== 'image/jpeg' });
+          const ctx = c.getContext('2d', { alpha: m.type !== 'image/jpeg', willReadFrequently: true });
           if (m.type === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); }
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(bmp, 0, 0, w, h);
+          postProcess(ctx, w, h, sharpAmt(sc), m.gray);
           const blob = await c.convertToBlob({ type: m.type, quality: m.quality });
           if (bmp.close) bmp.close();
           self.postMessage({ reqId: m.reqId, ok: true, blob, size: blob.size });
@@ -1114,7 +1582,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   /* ---------- decode + encode (worker path, with main-thread fallback) ---------- */
   function mainLoad(entry) {
-    return createImageBitmap(entry.file, { imageOrientation: 'from-image' })
+    return decodeImg(entry.file)
       .then(b => { entry.bmp = b; entry.loaded = true; entry.dim = { w: b.width, h: b.height }; })
       .catch(err => { entry.loadErr = String(err); });
   }
@@ -1135,13 +1603,15 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   function mainEncode(bmp, quality, scale, type) {
+    scale = Math.min(scale, Math.sqrt(MAX_PX / (bmp.width * bmp.height)));
     const w = Math.max(1, Math.round(bmp.width * scale));
     const h = Math.max(1, Math.round(bmp.height * scale));
     const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const ctx = c.getContext('2d');
+    const ctx = c.getContext('2d', { willReadFrequently: true });
     if (type === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(bmp, 0, 0, w, h);
+    postProcess(ctx, w, h, sharpAmt(scale), state.gray);
     return new Promise(res => c.toBlob(res, type, quality));
   }
 
@@ -1151,13 +1621,13 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       try {
         entry.wk = entry.wk || p.pick();
         if (once) { // single-pass: decode + encode + free inside the worker (no big bitmap kept)
-          const r = await p.call(entry.wk, { cmd: 'encodeOnce', blob: entry.file, quality, scale, type });
+          const r = await p.call(entry.wk, { cmd: 'encodeOnce', blob: entry.file, quality, scale, type, gray: state.gray, maxPx: MAX_PX });
           if (r && r.ok && r.blob) return r.blob;
           throw new Error('encodeOnce failed');
         }
         await ensureLoaded(entry);
         if (entry.loaded && !entry.bmp) { // bitmap cached inside the worker → encode there
-          const r = await p.call(entry.wk, { cmd: 'encode', id: entry.id, quality, scale, type });
+          const r = await p.call(entry.wk, { cmd: 'encode', id: entry.id, quality, scale, type, gray: state.gray, maxPx: MAX_PX });
           if (r && r.ok && r.blob) return r.blob;
           throw new Error('encode failed');
         }
@@ -1166,7 +1636,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     // ---- main-thread path: no workers, workers broke, or a worker call failed/returned nothing ----
     await ensureLoaded(entry); // main-loads into entry.bmp when workers are unavailable
     if (entry.bmp) return mainEncode(entry.bmp, quality, scale, type);
-    const bmp = await createImageBitmap(entry.file, { imageOrientation: 'from-image' }).catch(() => null);
+    const bmp = await decodeImg(entry.file).catch(() => null);
     if (!bmp) return null;
     const out = await mainEncode(bmp, quality, scale, type);
     if (bmp.close) bmp.close();
@@ -1185,54 +1655,36 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const ctx = canvas.getContext('2d', { alpha: false });
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cw, ch);
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
-    const jpeg = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+    const jpeg = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
     const view = page.view || [0, 0, vp.width / sc, vp.height / sc];
     if (page.cleanup) page.cleanup();
     canvas.width = canvas.height = 0;
     return { jpeg, pxW: cw, pxH: ch, ptW: view[2] - view[0], ptH: view[3] - view[1] };
   }
 
+  // Render every page once (cached) at 180 DPI — only used by target mode's last-resort flattening.
   async function ensurePdf(entry, onPage) {
-    if (entry._pages && entry._pages.length) return;              // already rendered
-    if (entry._pdfAnalyzed && entry._pdfKeepOriginal && !forcePdfRaster) return; // decided to keep it whole, and not being forced
-    entry._pdfAnalyzed = true;
-    if (!window.pdfjsLib) { entry._pdfKeepOriginal = true; return; }
-    const data = await entry.file.arrayBuffer();
-    const pdf = await window.pdfjsLib.getDocument({ data, disableAutoFetch: true, disableStream: true }).promise;
-    // Forced (target-mode) rasterization renders at a HIGHER base DPI: the target search then
-    // downscales from a much sharper source, so text stays crisper at the same output size — and
-    // generous targets can keep up to the full 180 DPI.
-    const N = pdf.numPages, BASE_DPI = forcePdfRaster ? 180 : 150, sc = BASE_DPI / 72;
-    // Sample up to 3 spread-out pages to estimate the rasterized size before committing to all N.
-    const idxs = [...new Set([1, Math.ceil(N / 2), N])].filter(i => i >= 1 && i <= N);
-    const cache = new Map(); let sampleTotal = 0;
-    setStatus('Analyzing PDF…');
-    for (const p of idxs) { const r = await renderPdfPage(pdf, p, sc); cache.set(p, r); sampleTotal += r.jpeg.size; }
-    const estRebuilt = (sampleTotal / idxs.length) * N;
-    // Normally: if rasterizing wouldn't save ≥20% we keep the original (preserves crisp, selectable
-    // text). But when forcePdfRaster is set (target mode couldn't otherwise hit the target), we
-    // rasterize anyway — flattening the PDF to page images is the only way to shrink a text/vector PDF.
-    if (!forcePdfRaster && estRebuilt >= entry.file.size * 0.8) {
-      entry._pdfKeepOriginal = true; entry._pages = null;
+    if (entry._pages && entry._pages.length) return;
+    if (!window.pdfjsLib) return;
+    try {
+      const data = await entry.file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data, disableAutoFetch: true, disableStream: true }).promise;
+      const N = pdf.numPages, sc = 180 / 72, pages = [];
+      for (let p = 1; p <= N; p++) { if (onPage) onPage(p, N); pages.push(await renderPdfPage(pdf, p, sc)); }
+      entry._pages = pages;
       try { await pdf.destroy(); } catch (_) {}
-      return;
-    }
-    // Worthwhile (scanned / image-heavy) OR forced: render every page, reusing the samples.
-    const pages = [];
-    for (let p = 1; p <= N; p++) { if (onPage) onPage(p, N); pages.push(cache.get(p) || await renderPdfPage(pdf, p, sc)); }
-    entry._pages = pages; entry._pdfKeepOriginal = false;
-    try { await pdf.destroy(); } catch (_) {}
+    } catch (_) { entry._pages = null; }
   }
 
   async function compressPdf(entry, quality, scale) {
     await ensurePdf(entry, (p, n) => setStatus(`Rendering PDF page ${p} of ${n}…`));
-    if (entry._pdfKeepOriginal || !entry._pages || !entry._pages.length) return null; // keep original as-is
+    if (!entry._pages || !entry._pages.length) return null; // couldn't render → caller keeps what it had
     const { jsPDF } = window.jspdf;
     let doc = null;
     for (let i = 0; i < entry._pages.length; i++) {
       const pg = entry._pages[i];
       let blob;
-      if (scale >= 0.999 && quality >= 0.849) {
+      if (scale >= 0.999 && quality >= 0.849 && !state.gray) {
         // Full resolution at (or above) the cached render's quality: embed the rendered page JPEG
         // directly. Re-encoding an identical-size JPEG can't add quality — skipping the second lossy
         // pass keeps pages visibly crisper (and is faster).
@@ -1240,9 +1692,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       } else {
         const bmp = await createImageBitmap(pg.jpeg);
         const w = Math.max(1, Math.round(pg.pxW * scale)), h = Math.max(1, Math.round(pg.pxH * scale));
-        const c = new OffscreenCanvas(w, h); const ctx = c.getContext('2d', { alpha: false });
-        if ('filter' in ctx && await pageIsGray(entry, i, bmp)) ctx.filter = 'grayscale(1)'; // gray page: drop the wasted chroma bytes
+        const c = new OffscreenCanvas(w, h); const ctx = c.getContext('2d', { alpha: false, willReadFrequently: true });
+        const gray = await pageIsGray(entry, i, bmp); // gray page: drop the wasted chroma bytes
         ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, 0, 0, w, h);
+        postProcess(ctx, w, h, sharpAmt(scale), gray);
         if (bmp.close) bmp.close();
         blob = await c.convertToBlob({ type: 'image/jpeg', quality });
       }
@@ -1259,6 +1712,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // effectively gray gets encoded as grayscale — its chroma bytes carry nothing — and the savings go
   // straight into resolution. Threshold is conservative so real color pages are never desaturated.
   async function pageIsGray(entry, idx, bmp) {
+    if (state.gray) return true; // black & white requested
     const cache = entry._grayPg || (entry._grayPg = new Map());
     if (cache.has(idx)) return cache.get(idx);
     let gray = false;
@@ -1290,9 +1744,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     for (const i of idxs) {
       const pg = pages[i], bmp = await createImageBitmap(pg.jpeg);
       const w = Math.max(1, Math.round(pg.pxW * scale)), h = Math.max(1, Math.round(pg.pxH * scale));
-      const c = new OffscreenCanvas(w, h), ctx = c.getContext('2d', { alpha: false });
-      if ('filter' in ctx && await pageIsGray(entry, i, bmp)) ctx.filter = 'grayscale(1)'; // must mirror compressPdf so estimates stay accurate
+      const c = new OffscreenCanvas(w, h), ctx = c.getContext('2d', { alpha: false, willReadFrequently: true });
+      const gray = await pageIsGray(entry, i, bmp); // must mirror compressPdf so estimates stay accurate
       ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, 0, 0, w, h);
+      postProcess(ctx, w, h, sharpAmt(scale), gray);
       if (bmp.close) bmp.close();
       const bl = await c.convertToBlob({ type: 'image/jpeg', quality });
       sum += bl.size;
@@ -1301,204 +1756,485 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   /* ============================================================================================
-     SHARP-TEXT PDF COMPRESSION — recompress only the embedded images, keep all vector text intact.
-     Most "big" PDFs (books, papers, reports) are mostly compact vector text plus a few heavy raster
-     images (covers, photos, figures/scans). Flattening every page to a JPEG destroys the crisp,
-     selectable text — that's the blur. Instead we open the PDF's structure with pdf-lib, downsample
-     and re-encode ONLY the image XObjects, and leave the text/fonts/vectors byte-for-byte untouched.
-     Text stays razor-sharp and selectable; only figures/covers soften. Rasterization stays as the
-     last-resort fallback for scanned (image-only) PDFs or when the fonts alone exceed the target.
+     PDF OPTIMIZER — shrink a PDF without ever rasterizing its pages. Three independent passes over
+     the document structure (via pdf-lib), each of which leaves the page looking identical:
+       1. Fonts:   embedded TrueType programs often carry layout tables (GPOS/GSUB/DSIG/bitmaps…)
+                   that no PDF viewer reads — glyphs are placed explicitly. Dropping them commonly
+                   removes 70-80% of each font.
+       2. Content: vector drawings (handwriting/ink, charts) store coordinates with far more decimals
+                   than any screen or printer can resolve. Rounding them shrinks the stream ~30%.
+       3. Images:  embedded photos/scans are downsampled and re-encoded; text and vectors untouched.
+     Text stays razor-sharp and selectable. Page rasterization only remains as a last resort in
+     target mode, when even this can't reach the requested size.
      ============================================================================================ */
+  const zpipe = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+  const inflateZlib = bytes => zpipe(bytes, new DecompressionStream('deflate'));
+  const deflateZlib = bytes => zpipe(bytes, new CompressionStream('deflate'));
+  const pdfName = s => window.PDFLib.PDFName.of(s);
+  const nameEq = (v, s) => !!v && v.encodedName === ('/' + s);
+  const filterList = f => !f ? [] : (f.array ? f.array.map(x => x && x.encodedName) : [f.encodedName]);
+  const dictNum = (d, k) => { const v = d.lookup(pdfName(k)); return v && v.asNumber ? v.asNumber() : 0; };
+  // a stream we can safely rewrite: unfiltered, or a single plain FlateDecode with no predictor
+  const plainFlate = d => { const fl = filterList(d.lookup(pdfName('Filter'))); return !d.get(pdfName('DecodeParms')) && (fl.length === 0 || (fl.length === 1 && fl[0] === '/FlateDecode')) ? fl : null; };
 
-  // Inflate a zlib/deflate stream (image data is often [FlateDecode, DCTDecode] — Flate wrapping a JPEG).
-  async function inflateZlib(bytes) {
-    const ds = new DecompressionStream('deflate');
-    const buf = await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
-    return new Uint8Array(buf);
-  }
-
-  // Open the PDF with pdf-lib and inventory the recompressible image XObjects (DCTDecode JPEGs, with
-  // or without an outer FlateDecode). Skips masks, soft-masked images, and formats we can't safely
-  // re-encode (CCITT/JBIG2/JPX) — those stay untouched. Caches the parsed doc + inflated JPEG bytes
-  // on the entry so the target search can re-encode repeatedly without re-parsing the file.
-  async function analyzePdfImages(entry) {
-    if (entry._imgAnalyzed) return entry._imgList && entry._imgList.length > 0;
-    entry._imgAnalyzed = true; entry._imgList = null; entry._pdflibDoc = null;
-    if (!window.PDFLib) return false;
-    try {
-      const { PDFDocument, PDFName, PDFRawStream } = window.PDFLib;
-      const src = new Uint8Array(await entry.file.arrayBuffer());
-      const doc = await PDFDocument.load(src, { updateMetadata: false, throwOnInvalidObject: false });
-      const N = s => PDFName.of(s);
-      const nameEq = (v, s) => v && v.encodedName === ('/' + s);
-      const filterList = f => !f ? [] : (f.array ? f.array.map(x => x && x.encodedName) : [f.encodedName]);
-      const list = []; let rawTotal = 0;
-      for (const [ref, obj] of doc.context.enumerateIndirectObjects()) {
-        if (!(obj instanceof PDFRawStream)) continue;
-        const d = obj.dict;
-        if (!nameEq(d.lookup(N('Subtype')), 'Image')) continue;
-        const fl = filterList(d.lookup(N('Filter')));
-        const isMask = d.lookup(N('ImageMask'));
-        const smask = d.lookup(N('SMask'));
-        const hasDCT = fl.includes('/DCTDecode'), hasFlate = fl.includes('/FlateDecode');
-        // Only plain DCT or Flate+DCT, no stencil masks, no soft mask (dropping it would lose alpha).
-        if (!hasDCT || (isMask && isMask.value) || smask) continue;
-        if (fl.some(x => x !== '/DCTDecode' && x !== '/FlateDecode')) continue;
-        const wObj = d.lookup(N('Width')), hObj = d.lookup(N('Height'));
-        const w = wObj && wObj.asNumber ? wObj.asNumber() : 0, h = hObj && hObj.asNumber ? hObj.asNumber() : 0;
-        const raw = obj.contents; rawTotal += raw.length;
-        if (w * h < 8000) continue; // leave tiny images alone
-        const csName = d.lookup(N('ColorSpace'));
-        const gray = nameEq(csName, 'DeviceGray');
-        list.push({ ref, raw, hasFlate, w, h, gray, jpeg: null });
-      }
-      entry._pdflibDoc = doc; entry._imgList = list; entry._imgRawTotal = rawTotal;
-      // fixed (non-recompressible) bytes: everything that isn't a handled image stream — fonts, text,
-      // vectors, structure. This floor can't shrink without font subsetting, so it bounds the target.
-      entry._pdfFixedBytes = Math.max(0, entry.file.size - rawTotal);
-      return list.length > 0;
-    } catch (_) { entry._imgList = null; entry._pdflibDoc = null; return false; }
-  }
-
-  // Decode each catalogued image once (inflating the Flate layer if present) and cache the JPEG bytes,
-  // so repeated re-encodes during the target search don't re-inflate.
-  async function ensureImageJpegs(entry) {
-    for (const im of entry._imgList) {
-      if (im.jpeg) continue;
-      im.jpeg = im.hasFlate ? await inflateZlib(im.raw) : im.raw;
+  // ---- 1. fonts -------------------------------------------------------------------------------
+  const FONT_KEEP = new Set(['head', 'hhea', 'maxp', 'hmtx', 'loca', 'glyf', 'cmap', 'cvt ', 'fpgm', 'prep', 'post', 'name', 'OS/2', 'gasp', 'vhea', 'vmtx']);
+  function trimTrueType(f) {
+    if (f.length < 12) return null;
+    const dv = new DataView(f.buffer, f.byteOffset, f.byteLength);
+    const ver = dv.getUint32(0); if (ver !== 0x00010000 && ver !== 0x74727565) return null;
+    const nt = dv.getUint16(4); if (12 + nt * 16 > f.length) return null;
+    const tabs = [], have = new Set(); let dropped = 0;
+    for (let i = 0; i < nt; i++) {
+      const p = 12 + i * 16, tag = String.fromCharCode(f[p], f[p + 1], f[p + 2], f[p + 3]);
+      const cs = dv.getUint32(p + 4), off = dv.getUint32(p + 8), len = dv.getUint32(p + 12);
+      if (off + len > f.length) return null;
+      have.add(tag);
+      if (FONT_KEEP.has(tag)) tabs.push({ tag, cs, off, len }); else dropped += len;
     }
-  }
-
-  // Re-encode one catalogued image at a max long-side and quality; returns the new JPEG bytes (or null
-  // if it wouldn't be smaller than the original stream).
-  async function reencodeImage(im, maxSide, quality) {
-    const bmp = await createImageBitmap(new Blob([im.jpeg], { type: 'image/jpeg' }));
-    const s = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
-    const nw = Math.max(1, Math.round(bmp.width * s)), nh = Math.max(1, Math.round(bmp.height * s));
-    const c = new OffscreenCanvas(nw, nh), cx = c.getContext('2d', { alpha: false });
-    cx.fillStyle = '#fff'; cx.fillRect(0, 0, nw, nh); cx.imageSmoothingQuality = 'high'; cx.drawImage(bmp, 0, 0, nw, nh);
-    if (bmp.close) bmp.close();
-    const blob = await c.convertToBlob({ type: 'image/jpeg', quality });
-    const nb = new Uint8Array(await blob.arrayBuffer());
-    return { nb, nw, nh };
-  }
-
-  // ESTIMATE: total bytes of all images if re-encoded at (maxSide, qColor/qGray), without touching the
-  // document — lets the target search pick a size without saving the whole PDF each probe.
-  async function estimatePdfImageBytes(entry, maxSide, qColor, qGray) {
-    await ensureImageJpegs(entry);
-    let sum = 0;
-    for (const im of entry._imgList) {
-      try {
-        const { nb } = await reencodeImage(im, maxSide, im.gray ? qGray : qColor);
-        sum += Math.min(nb.length, im.raw.length);
-      } catch (_) { sum += im.raw.length; }
+    if (!have.has('glyf') || !have.has('loca') || !have.has('head') || dropped < 2048) return null;
+    const k = tabs.length; let size = 12 + k * 16;
+    for (const t of tabs) { t.at = size; size += (t.len + 3) & ~3; }
+    const out = new Uint8Array(size), ov = new DataView(out.buffer);
+    let es = 0; while ((1 << (es + 1)) <= k) es++;
+    ov.setUint32(0, ver); ov.setUint16(4, k); ov.setUint16(6, (1 << es) * 16); ov.setUint16(8, es); ov.setUint16(10, k * 16 - (1 << es) * 16);
+    tabs.forEach((t, i) => {
+      const p = 12 + i * 16;
+      for (let c = 0; c < 4; c++) out[p + c] = t.tag.charCodeAt(c);
+      ov.setUint32(p + 4, t.cs); ov.setUint32(p + 8, t.at); ov.setUint32(p + 12, t.len);
+      out.set(f.subarray(t.off, t.off + t.len), t.at);
+    });
+    const head = tabs.find(t => t.tag === 'head');
+    if (head.len >= 12) { // whole-file checksum lives in head.checkSumAdjustment
+      ov.setUint32(head.at + 8, 0);
+      let sum = 0; for (let i = 0; i < size; i += 4) sum = (sum + ov.getUint32(i)) >>> 0;
+      ov.setUint32(head.at + 8, (0xB1B0AFBA - sum) >>> 0);
     }
-    return sum;
+    return out;
   }
-
-  // APPLY: re-encode every image at (maxSide, q) and replace its stream in the doc, then save. Vector
-  // text/fonts are never touched. Returns a { blob, size } for the rebuilt PDF, or null on failure.
-  async function applyPdfImageRecompress(entry, maxSide, qColor, qGray) {
-    if (!entry._pdflibDoc || !entry._imgList) return null;
-    try {
-      const { PDFName, PDFRawStream } = window.PDFLib;
-      const ctx = entry._pdflibDoc.context;
-      await ensureImageJpegs(entry);
-      for (const im of entry._imgList) {
+  async function trimPdfFonts(doc, cache) {
+    const { PDFDict, PDFRawStream, PDFNumber } = window.PDFLib, ctx = doc.context;
+    for (const [, obj] of ctx.enumerateIndirectObjects()) {
+      if (!(obj instanceof PDFDict)) continue;
+      const ffRef = obj.get(pdfName('FontFile2')); if (!ffRef) continue;
+      const key = 'f' + ffRef.toString(), st = ctx.lookup(ffRef);
+      if (!(st instanceof PDFRawStream) || st._compactr) continue;
+      let hit = cache.get(key);
+      if (hit === undefined) {
+        hit = null;
         try {
-          const { nb, nw, nh } = await reencodeImage(im, maxSide, im.gray ? qGray : qColor);
-          if (nb.length >= im.raw.length) continue; // keep original if re-encode isn't smaller
-          const nd = ctx.obj({ Type: 'XObject', Subtype: 'Image', Width: nw, Height: nh, ColorSpace: 'DeviceRGB', BitsPerComponent: 8, Filter: 'DCTDecode', Length: nb.length });
-          ctx.assign(im.ref, PDFRawStream.of(nd, nb));
-        } catch (_) { /* leave this image as-is */ }
+          const fl = plainFlate(st.dict);
+          if (fl) {
+            const slim = trimTrueType(fl.length ? await inflateZlib(st.contents) : st.contents);
+            if (slim) { const z = await deflateZlib(slim); if (z.length < st.contents.length) hit = { z, len1: slim.length }; }
+          }
+        } catch (_) {}
+        cache.set(key, hit);
       }
-      const out = await entry._pdflibDoc.save({ useObjectStreams: true, addDefaultPage: false });
-      const blob = new Blob([out], { type: 'application/pdf' });
-      return { blob, size: blob.size };
-    } catch (_) { return null; }
+      if (!hit) continue;
+      st.dict.set(pdfName('Filter'), pdfName('FlateDecode'));
+      st.dict.set(pdfName('Length1'), PDFNumber.of(hit.len1));
+      st.dict.set(pdfName('Length'), PDFNumber.of(hit.z.length));
+      const ns = PDFRawStream.of(st.dict, hit.z); ns._compactr = true;
+      ctx.assign(ffRef, ns);
+    }
   }
 
-  // Target fit that KEEPS VECTOR TEXT SHARP: for each PDF, spend the budget left after its fixed
-  // (font/text) floor on the images, searching the largest max-side that fits. Returns { ok } — ok is
-  // false when even tiny images can't get a PDF under target (fonts alone exceed it), so the caller can
-  // fall back to rasterization. Non-PDF files are encoded once at good clarity first.
-  async function fitPdfKeepTextToTarget(targetBytes, onPass) {
-    const pdfs = state.entries.filter(e => e.kind === 'pdf');
-    if (!pdfs.length) return { ok: false };
-    const budget = targetBytes * 0.98;
-    // encode non-PDF files once at solid clarity; the rest of the budget goes to the PDF images
-    await encodeAll(0.85, 1, (d, n) => onPass(2, d, n), false, true /* skipPdf */);
-    const nonPdfBytes = state.entries.reduce((s, e) => s + (e.kind !== 'pdf' ? (e.out ? e.out.size : e.file.size) : 0), 0);
-    let anyRecompressible = false;
-    for (const e of pdfs) if (await analyzePdfImages(e)) anyRecompressible = true;
-    if (!anyRecompressible) return { ok: false }; // no images to shrink → must rasterize
-    const fixedTotal = pdfs.reduce((s, e) => s + (e._pdfFixedBytes || e.file.size), 0);
-    let imgBudget = budget - nonPdfBytes - fixedTotal;
-    if (imgBudget < 40 * 1024) return { ok: false }; // fonts/text alone blow the target → rasterize instead
-    let allOk = true;
-    for (const e of pdfs) {
-      if (!e._imgList || !e._imgList.length) { // this PDF has no recompressible images
-        e.out = { blob: e.file, size: e.file.size, name: e.rel };
-        if (e.file.size > (e._pdfFixedBytes || e.file.size) + imgBudget) allOk = false;
+  // ---- 2. content streams ---------------------------------------------------------------------
+  // Round real numbers to what a page can actually resolve. Strings, hex strings, names and comments
+  // are copied byte-for-byte; streams containing inline images are skipped entirely.
+  //  • Path coordinates (m l c v y re) on a PAGE are rounded to a tolerance in page points, tracking
+  //    the current transform's scale through q / Q / cm — detailed vector art (maps, handwriting)
+  //    is mostly digits nobody can see: 0.01pt is 1/7200 inch.
+  //  • Everything else (text positioning, colours, matrices, form XObjects whose final scale isn't
+  //    known here) uses a conservative magnitude-based rule.
+  // `gs` carries graphics state across the content streams of one page; `tol` undefined = conservative.
+  function slimContentBytes(src, gs, tol) {
+    const n = src.length, out = new Uint8Array(n * 2 + 16), pend = []; let o = 0, i = 0;
+    const ws = c => c === 32 || c === 10 || c === 13 || c === 9 || c === 12 || c === 0;
+    const delim = c => c === 40 || c === 41 || c === 60 || c === 62 || c === 91 || c === 93 || c === 123 || c === 125 || c === 47 || c === 37;
+    const copy = j => { out.set(src.subarray(i, j), o); o += j - i; i = j; };
+    const num = p => parseFloat(String.fromCharCode.apply(null, src.subarray(p[0], p[1])));
+    const flush = pathDec => {
+      for (const p of pend) {
+        const len = p[1] - p[0]; let done = false;
+        if (p[2] && len > 2) {
+          const f = num(p);
+          if (isFinite(f)) {
+            const a = Math.abs(f);
+            let t = f.toFixed(pathDec >= 0 ? pathDec : (a >= 100 ? 2 : a >= 1 ? 3 : 4));
+            if (t.indexOf('.') >= 0) t = t.replace(/0+$/, '').replace(/\.$/, '');
+            if (t === '-0' || t === '') t = '0';
+            t = t.replace(/^(-?)0\./, '$1.');
+            if (t.length < len) { for (let k = 0; k < t.length; k++) out[o++] = t.charCodeAt(k); done = true; }
+          }
+        }
+        if (!done) { out.set(src.subarray(p[0], p[1]), o); o += len; }
+        out[o++] = 32;
+      }
+      pend.length = 0;
+    };
+    while (i < n) {
+      const c = src[i];
+      if (c === 40) { flush(-1); let depth = 0, j = i; do { const ch = src[j]; if (ch === 92) j++; else if (ch === 40) depth++; else if (ch === 41) depth--; j++; } while (depth > 0 && j < n); copy(Math.min(n, j)); continue; }
+      if (c === 60 && src[i + 1] !== 60) { flush(-1); let j = i + 1; while (j < n && src[j] !== 62) j++; copy(Math.min(n, j + 1)); continue; }
+      if (c === 37) { flush(-1); let j = i; while (j < n && src[j] !== 10 && src[j] !== 13) j++; copy(j); continue; }
+      if (c === 47) { flush(-1); let j = i + 1; while (j < n && !ws(src[j]) && !delim(src[j])) j++; copy(j); continue; }
+      if (ws(c)) { out[o++] = c; i++; continue; }
+      if (delim(c)) { flush(-1); out[o++] = c; i++; continue; }
+      let j = i, numeric = true, dot = false, digits = 0;
+      while (j < n && !ws(src[j]) && !delim(src[j])) {
+        const ch = src[j];
+        if (ch === 46) { if (dot) numeric = false; dot = true; }
+        else if (ch === 43 || ch === 45) { if (j !== i) numeric = false; }
+        else if (ch < 48 || ch > 57) numeric = false; else digits++;
+        j++;
+      }
+      if (numeric && digits) { // an operand: hold it until we see which operator it belongs to
+        pend.push([i, j, dot]); i = j;
+        while (i < n && ws(src[i])) i++;
         continue;
       }
-      const share = imgBudget * ((e._imgRawTotal || 1) / (pdfs.reduce((s, x) => s + (x._imgRawTotal || 0), 0) || 1));
-      const QC = 0.5, QG = 0.55;
-      // Two estimates (large & small max-side) model bytes ≈ small-image floor + big-image∝side², then
-      // solve for the side that fills this PDF's image share; clamp to a sane range.
-      onPass(3, 0, 1);
-      const b900 = await estimatePdfImageBytes(e, 900, QC, QG);
-      let chosen = 900;
-      if (b900 > share) {
-        const b500 = await estimatePdfImageBytes(e, 500, QC, QG);
-        // bytes(side) ≈ A + B*side^2  → solve for share
-        const B = Math.max(1e-6, (b900 - b500) / (900 * 900 - 500 * 500));
-        const A = b500 - B * 500 * 500;
-        let side = Math.sqrt(Math.max(1, (share - A) / B));
-        chosen = Math.max(360, Math.min(900, Math.round(side)));
+      // an operator (or keyword)
+      const len = j - i, a = src[i], b = len > 1 ? src[i + 1] : 0;
+      let pathDec = -1;
+      if (len === 1) {
+        if (a === 113) gs.stack.push(gs.scale);                                   // q
+        else if (a === 81) { if (gs.stack.length) gs.scale = gs.stack.pop(); }     // Q
+        else if (tol && !gs.text && (a === 109 || a === 108 || a === 99 || a === 118 || a === 121)) pathDec = 1; // m l c v y
+      } else if (len === 2) {
+        if (a === 66 && b === 84) gs.text = true;                                  // BT
+        else if (a === 69 && b === 84) gs.text = false;                            // ET
+        else if (a === 114 && b === 101 && tol && !gs.text) pathDec = 1;           // re
+        else if (a === 99 && b === 109 && pend.length >= 6) {                      // cm → track scale
+          const v = pend.slice(-6).map(num), det = Math.abs(v[0] * v[3] - v[1] * v[2]);
+          if (isFinite(det) && det > 0) gs.scale *= Math.sqrt(det);
+        }
       }
-      let res = await applyPdfImageRecompress(e, chosen, QC, QG);
-      // measured correction: if the real save came out over its share, step the side down once more
-      if (res && res.size - (e._pdfFixedBytes || 0) > share * 1.06 && chosen > 380) {
-        // reload a fresh doc (previous apply already mutated it) and redo smaller
-        e._imgAnalyzed = false; await analyzePdfImages(e);
-        const smaller = Math.max(340, Math.round(chosen * Math.sqrt(share / Math.max(1, res.size - (e._pdfFixedBytes || 0)))));
-        const res2 = await applyPdfImageRecompress(e, smaller, QC - 0.06, QG - 0.06);
-        if (res2 && res2.size < res.size) res = res2;
-      }
-      if (res && res.size < e.file.size) e.out = { blob: res.blob, size: res.size, name: e.rel };
-      else { e.out = { blob: e.file, size: e.file.size, name: e.rel }; }
-      if (e.out.size > (e._pdfFixedBytes || 0) + share + 64 * 1024) allOk = false;
+      if (pathDec === 1) pathDec = Math.max(0, Math.min(4, Math.ceil(Math.log10(Math.max(1e-6, gs.scale) / tol) - 1e-9)));
+      flush(pathDec);
+      copy(j);
     }
-    return { ok: allOk };
+    flush(-1);
+    return out.subarray(0, o);
+  }
+  function hasInlineImage(b) { // a standalone "BI" operator
+    const ws = c => c === 32 || c === 10 || c === 13 || c === 9;
+    for (let i = 1; i < b.length - 2; i++) if (b[i] === 66 && b[i + 1] === 73 && ws(b[i - 1]) && ws(b[i + 2])) return true;
+    return false;
+  }
+  async function slimPdfContent(doc, cache, tol) {
+    const { PDFRawStream, PDFRef, PDFArray, PDFNumber } = window.PDFLib, ctx = doc.context;
+    const groups = []; // [refs…, tolerance] — one group per page (state flows across its streams), forms alone
+    try {
+      for (const page of doc.getPages()) {
+        const direct = page.node.get(pdfName('Contents')), val = page.node.lookup(pdfName('Contents')), refs = [];
+        if (val instanceof PDFArray) { for (let i = 0; i < val.size(); i++) { const r = val.get(i); if (r instanceof PDFRef) refs.push(r); } }
+        else if (direct instanceof PDFRef) refs.push(direct);
+        const uu = page.node.get(pdfName('UserUnit'));
+        if (refs.length) groups.push({ refs, tol: uu ? undefined : tol });
+      }
+    } catch (_) {}
+    for (const [ref, obj] of ctx.enumerateIndirectObjects()) if (obj instanceof PDFRawStream && nameEq(obj.dict.lookup(pdfName('Subtype')), 'Form')) groups.push({ refs: [ref], tol: undefined });
+    for (const g of groups) {
+      const gs = { scale: 1, stack: [], text: false }; let t = g.tol;
+      for (const ref of g.refs) {
+        const st = ctx.lookup(ref), key = 'c' + (g.tol || 0) + ref.toString();
+        if (!(st instanceof PDFRawStream)) continue;
+        if (st._compactr) { t = undefined; continue; } // shared stream already rewritten: state unknown from here on
+        let hit = cache.get(key);
+        if (hit === undefined) {
+          hit = null;
+          try {
+            const fl = plainFlate(st.dict);
+            if (fl && st.contents.length > 600) {
+              const raw = fl.length ? await inflateZlib(st.contents) : st.contents;
+              if (!hasInlineImage(raw)) { const z = await deflateZlib(slimContentBytes(raw, gs, t)); if (z.length < st.contents.length * 0.97) hit = { z }; }
+              else t = undefined;
+            } else t = undefined; // couldn't read this stream → don't trust the tracked state after it
+          } catch (_) { t = undefined; }
+          cache.set(key, hit);
+        } else if (g.refs.length > 1) t = undefined;
+        if (!hit) continue;
+        st.dict.set(pdfName('Filter'), pdfName('FlateDecode'));
+        st.dict.set(pdfName('Length'), PDFNumber.of(hit.z.length));
+        const ns = PDFRawStream.of(st.dict, hit.z); ns._compactr = true;
+        ctx.assign(ref, ns);
+      }
+    }
   }
 
-  // Efficient, clarity-maximizing target fit for when a text/vector PDF must be flattened to hit the
-  // target. Images/Office are encoded once at high clarity; the rest of the budget goes to the PDF(s).
-  // For each PDF we BINARY-SEARCH the largest page scale whose estimated size still fits its share of
-  // the budget — i.e. the highest resolution the target allows — since for text, resolution drives
-  // legibility far more than JPEG quality. Then one full render + one full page-encode per PDF (the
-  // estimate avoids re-rasterizing the whole book on every probe). We fill ~98% of the target.
-  async function fitRasterPdfToTarget(targetBytes, onPass) {
+  // ---- 3. images ------------------------------------------------------------------------------
+  // Decode a losslessly-stored (Flate) 8-bit RGB/Gray image, undoing PNG row predictors if present.
+  async function decodeFlateImage(d, raw, w, h) {
+    const { PDFArray } = window.PDFLib;
+    if (dictNum(d, 'BitsPerComponent') !== 8 || d.get(pdfName('Decode')) || w * h > 4e7) return null;
+    const cs = d.lookup(pdfName('ColorSpace')); let comps = 0;
+    if (nameEq(cs, 'DeviceRGB')) comps = 3; else if (nameEq(cs, 'DeviceGray')) comps = 1;
+    else if (cs instanceof PDFArray && nameEq(cs.lookup(0), 'ICCBased')) { const icc = cs.lookup(1); comps = icc && icc.dict ? dictNum(icc.dict, 'N') : 0; }
+    if (comps !== 1 && comps !== 3) return null;
+    let data = await inflateZlib(raw);
+    let dp = d.lookup(pdfName('DecodeParms')); if (dp instanceof PDFArray) dp = dp.lookup(0);
+    const pred = dp && dp.lookup ? (dictNum(dp, 'Predictor') || 1) : 1, stride = w * comps;
+    if (pred >= 10) {
+      if (data.length < (stride + 1) * h) return null;
+      const out = new Uint8Array(stride * h);
+      for (let y = 0; y < h; y++) {
+        const ft = data[y * (stride + 1)], ro = y * (stride + 1) + 1, oo = y * stride;
+        for (let x = 0; x < stride; x++) {
+          const a = x >= comps ? out[oo + x - comps] : 0, b = y ? out[oo - stride + x] : 0, c = (x >= comps && y) ? out[oo - stride + x - comps] : 0;
+          let v = data[ro + x];
+          if (ft === 1) v += a; else if (ft === 2) v += b; else if (ft === 3) v += (a + b) >> 1;
+          else if (ft === 4) { const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c); v += (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c); }
+          out[oo + x] = v;
+        }
+      }
+      data = out;
+    } else if (pred !== 1) return null;
+    if (data.length < stride * h) return null;
+    const rgba = new Uint8ClampedArray(w * h * 4);
+    if (comps === 3) for (let i = 0, j = 0; i < w * h; i++, j += 3) { rgba[i * 4] = data[j]; rgba[i * 4 + 1] = data[j + 1]; rgba[i * 4 + 2] = data[j + 2]; rgba[i * 4 + 3] = 255; }
+    else for (let i = 0; i < w * h; i++) { rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = data[i]; rgba[i * 4 + 3] = 255; }
+    return createImageBitmap(new ImageData(rgba, w, h));
+  }
+
+  // Browsers decode a bare JPEG by their own conventions, which differ from PDF's for CMYK data (ink
+  // values come out inverted unless an Adobe marker and the /Decode array happen to cancel out), and
+  // they know nothing of /Decode arrays or PDF colour spaces. For anything that isn't plain gray/RGB
+  // we therefore let pdf.js draw the image exactly as a PDF viewer would: wrap it in a one-page PDF
+  // and render that page straight at the size we want.
+  async function renderPdfImage(doc, obj, w, h, scale) {
+    const { PDFDocument, PDFObjectCopier } = window.PDFLib;
+    if (!window.pdfjsLib || !PDFObjectCopier) return null;
+    const nd = await PDFDocument.create(), copy = PDFObjectCopier.for(doc.context, nd.context).copy(obj);
+    copy.dict.delete(pdfName('SMask')); // transparency stays a separate object in the real document
+    const page = nd.addPage([w, h]);
+    page.node.set(pdfName('Resources'), nd.context.obj({ XObject: { Im0: nd.context.register(copy) } }));
+    page.node.set(pdfName('Contents'), nd.context.register(nd.context.flateStream(`q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`)));
+    const pdf = await window.pdfjsLib.getDocument({ data: await nd.save({ useObjectStreams: false }), disableAutoFetch: true, disableStream: true }).promise;
+    try {
+      const pg = await pdf.getPage(1), vp = pg.getViewport({ scale });
+      const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(vp.width)); c.height = Math.max(1, Math.round(vp.height));
+      const cx = c.getContext('2d', { alpha: false, willReadFrequently: true }); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
+      await pg.render({ canvasContext: cx, viewport: vp }).promise;
+      return c;
+    } finally { try { await pdf.destroy(); } catch (_) {} }
+  }
+  // can the browser's own JPEG decoder be trusted to match PDF semantics for this image?
+  function plainJpegImage(d) {
+    const { PDFArray } = window.PDFLib;
+    const dec = d.lookup(pdfName('Decode'));
+    if (dec instanceof PDFArray) for (let i = 0; i < dec.size(); i++) { const v = dec.lookup(i); if (!v || !v.asNumber || v.asNumber() !== (i % 2)) return false; }
+    const cs = d.lookup(pdfName('ColorSpace'));
+    if (nameEq(cs, 'DeviceRGB') || nameEq(cs, 'DeviceGray')) return true;
+    if (cs instanceof PDFArray && nameEq(cs.lookup(0), 'ICCBased')) { const icc = cs.lookup(1), n = icc && icc.dict ? dictNum(icc.dict, 'N') : 0; return n === 1 || n === 3; }
+    return false;
+  }
+
+  // Downsample + re-encode embedded images. o = { maxSide, qColor, qGray, gray, skipImages }.
+  // Returns how many images were recompressible (0 → this PDF's size can't be reduced any further).
+  async function recompressPdfImages(doc, o, cache) {
+    const { PDFRawStream } = window.PDFLib, ctx = doc.context;
+    const all = ctx.enumerateIndirectObjects().filter(([, obj]) => obj instanceof PDFRawStream && nameEq(obj.dict.lookup(pdfName('Subtype')), 'Image'));
+    const masks = new Set(); // images used as soft masks must stay exactly as they are
+    for (const [, obj] of all) { const sm = obj.dict.get(pdfName('SMask')); if (sm) masks.add(sm.toString()); }
+    let count = 0;
+    for (const [ref, obj] of all) {
+      const d = obj.dict, raw = obj.contents;
+      if (masks.has(ref.toString()) || d.get(pdfName('Mask'))) continue;
+      const im = d.lookup(pdfName('ImageMask')); if (im && im.value) continue;
+      const w = dictNum(d, 'Width'), h = dictNum(d, 'Height');
+      if (w * h < 8000) continue;
+      const fl = filterList(d.lookup(pdfName('Filter')));
+      let bmp = null, lossless = false;
+      try {
+        if (fl.includes('/DCTDecode') && fl.every(x => x === '/DCTDecode' || x === '/FlateDecode')) {
+          if (plainJpegImage(d)) bmp = await createImageBitmap(new Blob([fl.length > 1 ? await inflateZlib(raw) : raw], { type: 'image/jpeg' }));
+          else if (w * h <= Math.min(24e6, MAX_PX)) {
+            // decode once through pdf.js, keep the faithful RGB result (near-lossless JPEG) for later passes
+            const key = 'i' + ref.toString(); let jb = cache.get(key);
+            if (jb === undefined) { jb = null; try { const cv = await renderPdfImage(doc, obj, w, h, 1); if (cv) jb = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.95)); } catch (_) {} cache.set(key, jb); }
+            if (jb) bmp = await createImageBitmap(jb);
+          }
+        } else if (fl.length === 1 && fl[0] === '/FlateDecode' && w * h >= 40000 && raw.length >= 24000) {
+          bmp = await decodeFlateImage(d, raw, w, h); lossless = true;
+        }
+      } catch (_) { bmp = null; }
+      if (!bmp) continue;
+      count++;
+      if (o.skipImages) { if (bmp.close) bmp.close(); continue; }
+      try {
+        const isGray = nameEq(d.lookup(pdfName('ColorSpace')), 'DeviceGray');
+        const s = Math.min(1, o.maxSide / Math.max(bmp.width, bmp.height));
+        const nw = Math.max(1, Math.round(bmp.width * s)), nh = Math.max(1, Math.round(bmp.height * s));
+        const c = new OffscreenCanvas(nw, nh), cx = c.getContext('2d', { alpha: false, willReadFrequently: true });
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, nw, nh); cx.imageSmoothingQuality = 'high'; cx.drawImage(bmp, 0, 0, nw, nh);
+        postProcess(cx, c.width, c.height, sharpAmt(s), !!o.gray && !isGray);
+        // images that were stored losslessly are often screenshots or line art: only convert them when
+        // JPEG is a clear win, and at a quality high enough to keep edges clean
+        const q = lossless ? Math.max(0.82, o.qColor) : (isGray ? o.qGray : o.qColor);
+        const nb = new Uint8Array(await (await c.convertToBlob({ type: 'image/jpeg', quality: q })).arrayBuffer());
+        if (nb.length < raw.length * (lossless ? 0.7 : 0.95)) {
+          const nd = ctx.obj({ Type: 'XObject', Subtype: 'Image', Width: c.width, Height: c.height, ColorSpace: 'DeviceRGB', BitsPerComponent: 8, Filter: 'DCTDecode', Length: nb.length });
+          const sm = d.get(pdfName('SMask')); if (sm) nd.set(pdfName('SMask'), sm);
+          ctx.assign(ref, PDFRawStream.of(nd, nb));
+        }
+      } catch (_) { /* leave this image as it was */ }
+      if (bmp.close) bmp.close();
+    }
+    return count;
+  }
+
+  // Safety net: the rebuilt file must open, have the same page count, and LOOK like the original.
+  // A few pages spread through the document are rendered small from both files and compared; a
+  // result that differs visibly is rejected, so a decoding or rewriting mistake can never ship.
+  async function pdfThumbs(bytes, picks) {
+    const pdf = await window.pdfjsLib.getDocument({ data: bytes.slice(), disableAutoFetch: true, disableStream: true }).promise;
+    const out = { pages: pdf.numPages, px: [] };
+    try {
+      for (const n of (picks || [])) {
+        if (n > pdf.numPages) { out.px.push(null); continue; }
+        const pg = await pdf.getPage(n), base = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: Math.min(1, 150 / Math.max(base.width, base.height)) });
+        const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(vp.width)); c.height = Math.max(1, Math.round(vp.height));
+        const cx = c.getContext('2d', { alpha: false, willReadFrequently: true }); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
+        await pg.render({ canvasContext: cx, viewport: vp }).promise;
+        out.px.push(cx.getImageData(0, 0, c.width, c.height).data); if (pg.cleanup) pg.cleanup();
+      }
+    } finally { try { await pdf.destroy(); } catch (_) {} }
+    return out;
+  }
+  const pdfPicks = n => [...new Set([1, 2, 3, Math.ceil(n / 4), Math.ceil(n / 2), Math.ceil(3 * n / 4), n - 1, n].filter(x => x >= 1 && x <= n))];
+  async function pdfLooksValid(bytes, entry, pages, gray) {
+    if (!window.pdfjsLib) return true;
+    try {
+      const picks = pdfPicks(pages);
+      const ref = entry._pdfRef || (entry._pdfRef = await pdfThumbs(entry._pdfBytes, picks));
+      const got = await pdfThumbs(bytes, picks);
+      if (got.pages !== pages) return false;
+      for (let i = 0; i < picks.length; i++) {
+        const a = ref.px[i], b = got.px[i]; if (!a || !b || a.length !== b.length) return false;
+        let sum = 0;
+        for (let p = 0; p < a.length; p += 4) {
+          if (gray) sum += Math.abs((a[p] * 54 + a[p + 1] * 183 + a[p + 2] * 19 - b[p] * 54 - b[p + 1] * 183 - b[p + 2] * 19) >> 8) * 3;
+          else sum += Math.abs(a[p] - b[p]) + Math.abs(a[p + 1] - b[p + 1]) + Math.abs(a[p + 2] - b[p + 2]);
+        }
+        if (sum / (a.length / 4 * 3) > 9) return false; // mean difference per channel, out of 255
+      }
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // Run all three passes. Returns { blob, nImg } or null (encrypted / unreadable → caller keeps original).
+  async function optimizePdf(entry, o) {
+    if (!window.PDFLib) return null;
+    try {
+      const src = entry._pdfBytes || (entry._pdfBytes = new Uint8Array(await entry.file.arrayBuffer()));
+      const doc = await window.PDFLib.PDFDocument.load(src, { updateMetadata: false, throwOnInvalidObject: false });
+      const pages = doc.getPageCount();
+      const cache = entry._pdfStruct || (entry._pdfStruct = new Map()); // font/content results are reused across passes
+      await trimPdfFonts(doc, cache);
+      await slimPdfContent(doc, cache, o.tol || 0.01);
+      const nImg = await recompressPdfImages(doc, o, cache);
+      const out = await doc.save({ useObjectStreams: true, addDefaultPage: false });
+      if (await pdfLooksValid(out, entry, pages, o.gray)) return { blob: new Blob([out], { type: 'application/pdf' }), nImg };
+      if (o.skipImages || o._retry) return null;
+      // looked different → retry leaving images untouched (structure-only), which is always safe
+      const r = await optimizePdf(entry, Object.assign({}, o, { skipImages: true, _retry: true }));
+      return r ? { blob: r.blob, nImg: 0 } : null;
+    } catch (_) { return null; }
+  }
+  // slider quality (0..1) → how hard to squeeze embedded images; 100% leaves them untouched
+  const pdfQualityParams = q => ({ maxSide: Math.round(900 + q * 1500), qColor: Math.max(0.4, Math.min(0.9, 0.3 + q * 0.6)), qGray: Math.max(0.45, Math.min(0.92, 0.35 + q * 0.6)), gray: state.gray, skipImages: q >= 0.995 && !state.gray });
+  let pdfTol = 0.01; // vector precision in points; target mode relaxes it to 0.1 before touching images
+  const pdfBaseParams = () => ({ maxSide: 2000, qColor: 0.82, qGray: 0.85, gray: state.gray, tol: pdfTol });
+
+  // Target mode, stage 2: PDFs must fit `pdfBudget` bytes. Search the largest embedded-image size
+  // that fits — text and vectors stay untouched. Returns false when images alone can't get there.
+  async function fitPdfImagesToBudget(pdfBudget, onPass) {
     const pdfs = state.entries.filter(e => e.kind === 'pdf');
-    const budget = targetBytes * 0.98; // fill tightly; the real-zip guard in go() trims rare overshoot
-    const Q_IMG = 0.85, Q_PDF = 0.75;  // keep JPEG quality solid; spend the budget on resolution
-    // 1) Render each PDF once (cached), so both the estimate and the final encode reuse the same pages.
-    for (const e of pdfs) await ensurePdf(e, (p, n) => onPass(1, p, n));
-    // 2) Encode everything that ISN'T a PDF once, at good clarity — small next to the PDF.
-    await encodeAll(Q_IMG, 1, (d, n) => onPass(2, d, n), false, true /* skipPdf */);
-    const nonPdfBytes = state.entries.reduce((s, e) => s + (e.kind !== 'pdf' ? (e.out ? e.out.size : e.file.size) : 0), 0);
-    // 3) Split the leftover budget across PDFs by page count; find the max scale that fits; encode once.
-    const pdfBudget = Math.max(0, budget - nonPdfBytes);
-    const totalPages = pdfs.reduce((s, e) => s + (e._pages ? e._pages.length : 0), 0) || 1;
+    const withImgs = pdfs.filter(e => e._pdfBase && !e._pdfNoImg);
+    if (!withImgs.length) return false;
+    const fixed = pdfs.filter(e => !withImgs.includes(e)).reduce((s, e) => s + (e.out ? e.out.size : e.file.size), 0);
+    const room = pdfBudget - fixed; if (room <= 0) return false;
+    const fixedBase = withImgs.reduce((s, e) => s + (e.out ? e.out.size : e.file.size), 0);
+    let step = 0;
+    const measure = async (side, qc) => {
+      let sum = 0; onPass(2, Math.min(4, step++), 5);
+      for (const e of withImgs) {
+        const r = await optimizePdf(e, { maxSide: side, qColor: qc, qGray: qc + 0.05, gray: state.gray, tol: pdfTol });
+        e._try = r && r.blob.size < e.file.size ? r.blob : null;
+        sum += e._try ? e._try.size : e.file.size;
+      }
+      return sum;
+    };
+    const commit = () => { for (const e of withImgs) { e.out = e._try ? { blob: e._try, size: e._try.size, name: e.rel } : { blob: e.file, size: e.file.size, name: e.rel }; e._try = null; } return true; };
+    // Give up JPEG quality first, pixels last: full-size images at moderate quality look better than
+    // small sharp ones. Two measurements at full size predict the quality that fills the budget.
+    const keep = () => { for (const e of withImgs) e._best = e._try; };
+    const commitBest = () => { for (const e of withImgs) { e._try = e._best; e._best = null; } return commit(); };
+    const s70 = await measure(2000, 0.70);
+    if (s70 <= room) {
+      keep();
+      const sBase = fixedBase; // size at the base quality (0.82), which didn't fit
+      if (sBase > s70 * 1.04 && s70 < room * 0.95) {
+        const q = Math.min(0.80, 0.70 + 0.12 * Math.log(room * 0.985 / s70) / Math.log(sBase / s70));
+        if (q > 0.725 && await measure(2000, q) <= room) keep();
+      }
+      return commitBest();
+    }
+    const s58 = await measure(2000, 0.58);
+    if (s58 <= room) {
+      keep();
+      const q = 0.58 + 0.12 * Math.log(room * 0.985 / s58) / Math.log(s70 / s58);
+      if (q > 0.605 && q < 0.70 && await measure(2000, q) <= room) keep();
+      return commitBest();
+    }
+    // Still too big at full size → search the image size. Start from a small size that fits and a
+    // large one that doesn't, then close in (bytes grow roughly with side²) until the budget is full.
+    const Q = 0.56;
+    let lo = 600, sLo = await measure(lo, Q);
+    if (sLo > room) { const sMin = await measure(340, 0.45); commit(); return sMin <= room; }
+    keep();
+    let hi = 1300, sHi = s58; // full size at similar quality is the upper bracket
+    for (let i = 0; i < 3 && sLo < room * 0.955 && hi - lo > 50; i++) {
+      const B = Math.max(1e-9, (sHi - sLo) / (hi * hi - lo * lo)), A = sLo - B * lo * lo;
+      const side = Math.max(lo + 25, Math.min(hi - 25, Math.floor(Math.sqrt(Math.max(1, (room * 0.985 - A) / B)))));
+      const sz = await measure(side, Q);
+      if (sz <= room) { keep(); lo = side; sLo = sz; } else { hi = side; sHi = sz; }
+    }
+    return commitBest();
+  }
+
+  // Target mode, last resort: flatten PDFs to page images sized to fit `pdfBudget`. For each PDF we
+  // binary-search the largest page scale whose estimated size fits its share (resolution drives
+  // legibility far more than JPEG quality), then one full encode with a measured correction.
+  async function fitRasterPdfToTarget(pdfBudget, onPass) {
+    const pdfs = state.entries.filter(e => e.kind === 'pdf');
+    const Q_PDF = 0.75;
+    const sizeNow = e => e.out ? e.out.size : e.file.size;
+    // Readability floor: pages are never flattened below 72 DPI. For a long text document that floor
+    // is often BIGGER than the text-sharp version we already have — so sample three pages first and
+    // skip any PDF that flattening can't actually shrink.
+    const MIN_SCALE = 0.4;
+    for (const e of pdfs) {
+      e._flatSkip = true;
+      try {
+        const pdf = await window.pdfjsLib.getDocument({ data: await e.file.arrayBuffer(), disableAutoFetch: true, disableStream: true }).promise;
+        const N = pdf.numPages; let sum = 0, k = 0;
+        for (const p of [...new Set([1, Math.ceil(N / 2), N])]) { const r = await renderPdfPage(pdf, p, 180 / 72 * MIN_SCALE); sum += r.jpeg.size * 0.55; k++; } // 0.92 → ~0.62 quality
+        try { await pdf.destroy(); } catch (_) {}
+        e._flatSkip = (sum / k) * N >= sizeNow(e) * 0.9;
+      } catch (_) {}
+    }
+    for (const e of pdfs) if (!e._flatSkip) await ensurePdf(e, (p, n) => onPass(1, p, n));
+    const totalNow = pdfs.reduce((s, e) => s + sizeNow(e), 0) || 1;
     let lastScale = 1, lastQ = Q_PDF;
     for (const e of pdfs) {
-      if (!e._pages || !e._pages.length) { e.out = { blob: e.file, size: e.file.size, name: e.rel }; continue; }
-      const share = pdfBudget * (e._pages.length / totalPages);
+      if (e._flatSkip || !e._pages || !e._pages.length) continue; // flattening wouldn't help / couldn't render → keep what we have
+      const share = pdfBudget * (sizeNow(e) / totalNow);
       const searchScale = async (q) => {
         if (await estimateRasterPdfBytes(e, q, 1, 8) <= share) return 1; // full base res fits — best clarity
-        let lo = 0.15, hi = 1, best = 0.15;
+        let lo = MIN_SCALE, hi = 1, best = MIN_SCALE;
         for (let i = 0; i < 8; i++) { // binary-search the largest scale under the share
           const m = (lo + hi) / 2;
           if (await estimateRasterPdfBytes(e, q, m, 6) <= share) { best = m; lo = m; } else hi = m;
@@ -1525,10 +2261,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         if (up > best * 1.03) {
           onPass(3, 0, 1);
           const blob2 = await compressPdf(e, q, up);
-          if (blob2 && blob2.size < e.file.size && blob2.size <= share) { blob = blob2; best = up; lastScale = up; }
+          if (blob2 && blob2.size <= share) { blob = blob2; best = up; lastScale = up; }
         }
       }
-      e.out = (!blob || blob.size >= e.file.size) ? { blob: e.file, size: e.file.size, name: e.rel } : { blob, size: blob.size, name: e.rel };
+      if (blob && blob.size < sizeNow(e)) { e.out = { blob, size: blob.size, name: e.rel }; e.flat = true; }
     }
     return { q: lastQ, scale: lastScale };
   }
@@ -1585,23 +2321,14 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
           else e.out = { blob, size: blob.size, name: outName(e.rel, type) };
         } else if (e.kind === 'pdf') {
           let blob = null;
-          // QUALITY mode: keep the vector text perfectly sharp and just recompress the embedded images
-          // at a slider-derived resolution/quality. Only rasterizes (via compressPdf) if the PDF is
-          // genuinely image-only or pdf-lib can't handle it. Target mode keeps PDFs whole here — its
-          // dedicated fit handles them — so we don't do the pdf-lib work on every search probe.
-          if (state.mode === 'quality' && !forcePdfRaster && window.PDFLib) {
-            try {
-              if (await analyzePdfImages(e) && e._imgList.length) {
-                // quality 0..1 → longest-side cap ~760..1700 and JPEG quality ~0.5..0.85
-                const maxSide = Math.round(760 + quality * 940);
-                const qC = Math.max(0.42, Math.min(0.85, 0.34 + quality * 0.55));
-                const res = await applyPdfImageRecompress(e, maxSide, qC, Math.min(0.9, qC + 0.05));
-                if (res && res.size < e.file.size) blob = res.blob;
-                e._imgAnalyzed = false; e._pdflibDoc = null; e._imgList = null; // fresh for any later pass
-              }
-            } catch (_) { blob = null; }
+          if (forcePdfRaster) blob = await compressPdf(e, quality, scale);
+          else if (state.mode === 'quality') { const r = await optimizePdf(e, pdfQualityParams(quality)); blob = r && r.blob; e.locked = !r; }
+          else {
+            // target mode: optimize once (structure + high-quality images) and reuse it across the
+            // search passes; if the batch still doesn't fit, go() squeezes PDFs in a dedicated stage
+            if (e._pdfBase === undefined) { const r = await optimizePdf(e, pdfBaseParams()); e._pdfBase = r ? r.blob : null; e._pdfNoImg = !r || r.nImg === 0; e.locked = !r; }
+            blob = e._pdfBase;
           }
-          if (!blob) blob = await compressPdf(e, quality, scale); // fallback / target-mode path unchanged
           e.out = (!blob || blob.size >= e.file.size) ? { blob: e.file, size: e.file.size, name: e.rel } : { blob, size: blob.size, name: e.rel };
         } else if (e.kind === 'office') {
           const blob = await compressOffice(e, quality, scale); // Office responds to quality and dimension scale
@@ -1611,6 +2338,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         e.out = { blob: e.file, size: e.file.size, name: e.rel };
         e.procErr = String((err && err.message) || err);
       }
+      if (e.kind === 'pdf') e.flat = forcePdfRaster && e.out.blob !== e.file;
       done++; if (onProg) onProg(done, comps.length);
     }
     async function lane() { while (idx < comps.length) { await runOne(comps[idx++]); } }
@@ -1619,7 +2347,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   /* ---------- adding files (expands dropped/picked .zip archives) ---------- */
-  async function ingest(rawFiles, relPaths) {
+  async function ingest(rawFiles, relPaths, opt) {
+    if (listLocked()) return;
+    if (state.gc && !(opt && opt.slot)) opt = { slot: 'condition', replace: false }; // GC: everything lands in a folder
     setStatus('Reading files…');
     const pairs = [];
     for (let i = 0; i < rawFiles.length; i++) {
@@ -1655,20 +2385,32 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         pairs.push({ file: f, rel });
       }
     }
-    let added = 0;
-    for (const { file, rel } of pairs) {
-      if (state.entries.some(e => e.rel === rel && e.file.size === file.size)) continue;
+    let added = 0, folderId = null;
+    if (opt && opt.slot) {
+      ensureGcFolders();
+      folderId = gcFolder(opt.slot).id;
+      if (opt.replace && pairs.length) filesIn(folderId).map(e => e.id).forEach(removeEntry); // new upload replaces the old one
+    }
+    const stem = n => n.replace(/\.[^.\/]+$/, '').toLowerCase();
+    for (let { file, rel } of pairs) {
+      if (folderId != null) {
+        // GC folders are flat: keep just the file name, and make it unique (outputs share one extension)
+        rel = rel.split('/').pop();
+        if (state.entries.some(e => e.folderId === folderId && e.rel === rel && e.file.size === file.size)) continue;
+        const taken = new Set(filesIn(folderId).map(e => stem(e.rel)));
+        if (taken.has(stem(rel))) { const dot = rel.lastIndexOf('.'), b = dot > 0 ? rel.slice(0, dot) : rel, x = dot > 0 ? rel.slice(dot) : ''; let i = 2; while (taken.has(stem(`${b} (${i})${x}`))) i++; rel = `${b} (${i})${x}`; }
+      } else if (state.entries.some(e => e.rel === rel && e.file.size === file.size)) continue;
       const kind = kindOf(file);
-      state.entries.push({ id: ++idSeq, file, rel, kind, img: kind === 'image', folderId: null, out: null, loaded: false, thumbUrl: null });
+      state.entries.push({ id: ++idSeq, file, rel, kind, img: kind === 'image', folderId, out: null, loaded: false, thumbUrl: null });
       added++;
     }
     setStatus('');
-    if (added) { state.zipBlob = null; render(); }
+    if (added || (opt && opt.replace)) { state.zipBlob = null; $('result').style.display = 'none'; render(); }
   }
 
   $('pickFiles').onclick = () => $('fileInput').click();
   $('pickFolder').onclick = () => $('folderInput').click();
-  $('fileInput').onchange = e => { ingest(e.target.files); e.target.value = ''; };
+  $('fileInput').onchange = e => { const t = pickTarget; pickTarget = null; ingest([...e.target.files], null, t || undefined); e.target.value = ''; };
   $('folderInput').onchange = e => { ingest(e.target.files); e.target.value = ''; };
   drop.onclick = e => { if (e.target.tagName !== 'BUTTON') $('fileInput').click(); };
   drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('fileInput').click(); } };
@@ -1716,6 +2458,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   document.addEventListener('drop', async e => {
     if (state.internalDrag) { resetDrag(); clearHighlights(); return; }
     e.preventDefault();
+    const gcSlot = state.gc ? gcSlotAt(e.clientX, e.clientY) : null; // read before the overlay hides
     hideOverlay();
     const dt = e.dataTransfer; if (!dt) return;
     const flatFiles = dt.files ? [...dt.files] : [];
@@ -1723,24 +2466,17 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     if (dt.items && dt.items.length && dt.items[0].webkitGetAsEntry) {
       try { entryRoots = [...dt.items].map(it => it.webkitGetAsEntry()).filter(Boolean); } catch (_) {}
     }
+    const opt = gcSlot ? { slot: gcSlot, replace: true } : undefined;
     if (entryRoots.length) {
       const collected = [], paths = [];
       try { for (const r of entryRoots) await readEntry(r, collected, paths); } catch (_) {}
-      if (collected.length) { await ingest(collected, paths); return; }
+      if (collected.length) { await ingest(collected, paths, opt); return; }
     }
-    if (flatFiles.length) { await ingest(flatFiles); return; }
+    if (flatFiles.length) { await ingest(flatFiles, null, opt); return; }
     setStatus('Nothing was dropped — try the Choose files button.');
   });
 
-  $('clearAll').onclick = () => {
-    state.entries.forEach(e => {
-      if (e.thumbUrl) URL.revokeObjectURL(e.thumbUrl);
-      if (useWorkers && e.wk && e.loaded) getPool().call(e.wk, { cmd: 'free', id: e.id });
-      if (e.bmp && e.bmp.close) e.bmp.close();
-      if (e._bmps) e._bmps.forEach(b => b && b.close && b.close());
-    });
-    state.entries = []; state.folders = []; state.zipBlob = null; render();
-  };
+  $('clearAll').onclick = () => clearFiles(false);
 
   /* ---------- folders: model + helpers ---------- */
   const childFolders = parentId => state.folders.filter(f => f.parentId === (parentId ?? null));
@@ -1769,11 +2505,17 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     state.folders = state.folders.filter(x => x.id !== fid);
     state.zipBlob = null; render();
   }
+  // While a job runs, the list is locked: changing it would make the result describe files that
+  // aren't there (or ship files that were never compressed).
+  function listLocked() { if (!state.busy) return false; setStatus('Wait for the current job to finish before changing the files.'); return true; }
+  // a thumbnail URL is released a moment after its row is gone (revoking while an <img> still loads it fails that load)
+  function revokeLater(url) { setTimeout(() => URL.revokeObjectURL(url), 4000); }
   function removeEntry(id) {
+    if (listLocked()) return;
     const i = state.entries.findIndex(e => e.id === id); if (i < 0) return;
     const [rm] = state.entries.splice(i, 1);
     state.selected.delete(id);
-    if (rm.thumbUrl) URL.revokeObjectURL(rm.thumbUrl);
+    if (rm.thumbUrl) revokeLater(rm.thumbUrl);
     if (useWorkers && rm.wk && rm.loaded) getPool().call(rm.wk, { cmd: 'free', id: rm.id });
     if (rm.bmp && rm.bmp.close) rm.bmp.close();
     if (rm._bmps) rm._bmps.forEach(b => b && b.close && b.close());
@@ -1788,17 +2530,34 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     let t;
     if (e.img) {
       t = document.createElement('img'); t.className = 'thumb'; t.loading = 'lazy'; t.decoding = 'async'; t.alt = ''; t.draggable = false;
-      if (!e.thumbUrl) e.thumbUrl = URL.createObjectURL(e.file);
-      t.src = e.thumbUrl;
-    } else { t = document.createElement('div'); t.className = 'thumb'; t.textContent = fileIcon(e); }
+      if (e.thumbUrl) t.src = e.thumbUrl; else wantThumb(e);
+    } else { t = document.createElement('div'); t.className = 'thumb'; t.innerHTML = fileIcon(e); }
     const meta = document.createElement('div'); meta.className = 'meta';
-    const after = e.out ? ` → <span class="after">${fmtBytes(e.out.size)}</span>` : '';
-    meta.innerHTML = `<div class="nm"></div><div class="sz">${fmtBytes(e.file.size)}${after}</div>`;
+    meta.innerHTML = '<div class="nm"></div><div class="sz"></div>';
     meta.querySelector('.nm').textContent = e.rel;
+    const sz = meta.querySelector('.sz'); sz.textContent = fmtBytes(e.file.size);
+    const add = (cls, text) => { const sp = document.createElement('span'); sp.className = cls; sp.textContent = text; sz.append(sp); };
+    let canCompare = false;
+    if (e.out) {
+      const smaller = e.out.blob !== e.file && e.out.size < e.file.size;
+      if (smaller) { sz.append(' → '); add('after', fmtBytes(e.out.size)); add('save', '−' + Math.round(100 - e.out.size / e.file.size * 100) + '%'); }
+      else if (e.procErr) add('tagnote', 'couldn’t be processed — kept original');
+      else if (e.kind === 'pdf' && e.locked && !e.flat) add('tagnote', 'protected or unreadable — kept original');
+      else if (isCompressible(e)) add('tagnote', 'already compact — kept original');
+      if (e.flat) add('tagnote', 'flattened');
+      canCompare = e.img && smaller;
+    }
     const x = document.createElement('button'); x.className = 'x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Remove ' + e.rel);
     x.onclick = ev => { ev.stopPropagation(); removeEntry(e.id); };
-    row.append(grip, t, meta, x);
-    row.addEventListener('click', ev => { if (ev.target.closest('.x')) return; ev.stopPropagation(); clickSelect(e.id, ev); });
+    row.append(grip, t, meta);
+    if (canCompare) {
+      const cmp = document.createElement('button'); cmp.className = 'cmp'; cmp.type = 'button'; cmp.textContent = 'Compare'; cmp.setAttribute('aria-label', 'Compare original and compressed ' + e.rel);
+      cmp.onclick = ev => { ev.stopPropagation(); openViewer(e); };
+      t.classList.add('can-compare'); t.addEventListener('click', ev => { ev.stopPropagation(); openViewer(e); });
+      row.append(cmp);
+    }
+    row.append(x);
+    row.addEventListener('click', ev => { if (ev.target.closest('.x') || ev.target.closest('.cmp')) return; ev.stopPropagation(); clickSelect(e.id, ev); });
     row.addEventListener('dragstart', ev => {
       // Dragging a row that isn't selected makes it the sole selection (familiar file-manager behavior);
       // dragging a selected row carries the whole selection.
@@ -1819,15 +2578,16 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   function makeFolderNode(folder) {
-    const wrap = document.createElement('div'); wrap.className = 'folder'; wrap.dataset.fid = folder.id;
+    const wrap = document.createElement('div'); wrap.className = 'folder' + (folder.fixed ? ' fixed' : ''); wrap.dataset.fid = folder.id;
     const head = document.createElement('div'); head.className = 'folder-head';
     const chev = document.createElement('span'); chev.className = 'chev' + (folder.collapsed ? ' collapsed' : ''); chev.textContent = '▼'; chev.title = folder.collapsed ? 'Expand' : 'Collapse';
     chev.onclick = () => { folder.collapsed = !folder.collapsed; render(); };
-    const icon = document.createElement('span'); icon.className = 'ficon'; icon.textContent = folder.collapsed ? '📁' : '📂';
+    const icon = document.createElement('span'); icon.className = 'ficon'; icon.innerHTML = folder.collapsed ? ICON.folder : ICON.folderOpen;
     const name = document.createElement('input'); name.className = 'folder-name'; name.value = folder.name; name.spellcheck = false; name.setAttribute('aria-label', 'Folder name');
+    if (folder.fixed) { name.readOnly = true; name.tabIndex = -1; }
     name.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); name.blur(); } });
     name.addEventListener('mousedown', ev => ev.stopPropagation());
-    name.addEventListener('blur', () => { let v = (name.value || '').trim(); if (!v) v = 'folder'; v = uniqueSiblingName(v, folder.parentId, folder.id); folder.name = v; name.value = v; state.zipBlob = null; });
+    name.addEventListener('blur', () => { if (folder.fixed) return; let v = (name.value || '').trim(); if (!v) v = 'folder'; v = uniqueSiblingName(v, folder.parentId, folder.id); folder.name = v; name.value = v; state.zipBlob = null; });
     const cnt = document.createElement('span'); cnt.className = 'folder-count';
     const direct = filesIn(folder.id).length, subs = childFolders(folder.id).length;
     cnt.textContent = `${direct} file${direct !== 1 ? 's' : ''}${subs ? ` · ${subs} sub` : ''}`;
@@ -1874,6 +2634,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     rootFiles().forEach(e => frag.appendChild(makeFileRow(e)));
     list.replaceChildren(frag);
     updateSelectionUI();
+    renderGcTiles();
   }
 
   // click empty list space (not a file row) to clear the selection
@@ -1895,7 +2656,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   /* ---------- right-click context menu (Add folder / subfolder / rename / delete) ---------- */
   const ctx = $('ctxMenu');
   const hideCtx = () => ctx.classList.remove('show');
-  function showCtx(x, y, items) {
+  function showCtx(x, y, items, above) {
     ctx.innerHTML = '';
     items.forEach(it => {
       if (it.sep) { ctx.appendChild(document.createElement('hr')); return; }
@@ -1906,25 +2667,39 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     ctx.style.left = Math.min(x, window.innerWidth - 196) + 'px';
     ctx.style.top = y + 'px';
     ctx.classList.add('show');
-    requestAnimationFrame(() => { ctx.style.top = Math.min(y, window.innerHeight - ctx.offsetHeight - 8) + 'px'; });
+    requestAnimationFrame(() => { ctx.style.top = Math.max(8, Math.min(above ? y - ctx.offsetHeight : y, window.innerHeight - ctx.offsetHeight - 8)) + 'px'; });
   }
   document.addEventListener('click', hideCtx);
+  ctx.addEventListener('click', ev => ev.stopPropagation());
   document.addEventListener('scroll', hideCtx, true);
   window.addEventListener('blur', hideCtx);
   list.addEventListener('contextmenu', ev => {
     if (!state.entries.length && !state.folders.length) return;
     ev.preventDefault();
-    const headEl = ev.target.closest('.folder-head');
-    if (headEl) {
-      const fid = +headEl.parentElement.dataset.fid;
+    const headEl = ev.target.closest('.folder-head'), rowEl = ev.target.closest('.item');
+    if (rowEl) {
+      const id = +rowEl.dataset.eid, ent = state.entries.find(x => x.id === id);
+      if (!state.selected.has(id)) { state.selected.clear(); state.selected.add(id); lastClickedId = id; updateSelectionUI(); }
+      const items = [];
+      if (ent && ent.img && ent.out && ent.out.blob !== ent.file) items.push({ label: 'Compare before / after', action: () => openViewer(ent) }, { sep: true });
+      items.push(...moveMenuItems('Move to '));
+      items.push({ sep: true }, { label: 'Remove', danger: true, action: () => [...state.selected].forEach(removeEntry) });
+      showCtx(ev.clientX, ev.clientY, items);
+    } else if (headEl) {
+      const fid = +headEl.parentElement.dataset.fid, fo = state.folders.find(f => f.id === fid);
+      if (fo && fo.fixed) {
+        const go = replace => { pickTarget = { slot: fo.name, replace }; $('fileInput').click(); };
+        showCtx(ev.clientX, ev.clientY, [{ label: 'Replace files', action: () => go(true) }, { label: 'Add more files', action: () => go(false) }]);
+        return;
+      }
       showCtx(ev.clientX, ev.clientY, [
-        { label: '➕  Add subfolder', action: () => addFolder(fid) },
-        { label: '✏️  Rename', action: () => { const el = list.querySelector(`.folder[data-fid="${fid}"] > .folder-head .folder-name`); if (el) { el.focus(); el.select(); } } },
+        { label: 'Add subfolder', action: () => addFolder(fid) },
+        { label: 'Rename', action: () => { const el = list.querySelector(`.folder[data-fid="${fid}"] > .folder-head .folder-name`); if (el) { el.focus(); el.select(); } } },
         { sep: true },
-        { label: '🗑  Delete folder', danger: true, action: () => deleteFolder(fid) },
+        { label: 'Delete folder', danger: true, action: () => deleteFolder(fid) },
       ]);
-    } else {
-      showCtx(ev.clientX, ev.clientY, [{ label: '📁  Add folder', action: () => addFolder(null) }]);
+    } else if (!state.gc) {
+      showCtx(ev.clientX, ev.clientY, [{ label: 'Add folder', action: () => addFolder(null) }]);
     }
   });
 
@@ -1945,22 +2720,36 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     state.mode = b.dataset.mode;
     $('qualityRow').classList.toggle('hidden', state.mode !== 'quality');
     $('targetRow').classList.toggle('hidden', state.mode !== 'target');
-    updateGlider(e.target.closest('.seg'));
+    updateGlider(e.target.closest('.seg')); saveSettings();
   });
 
+  if (!canWebp) {
+    const wb = document.querySelector('#fmtSeg [data-fmt="image/webp"]');
+    wb.disabled = true; wb.title = "This browser can't save WebP";
+    const hint = $('fmtSeg').closest('.row').querySelector('.hint'); if (hint) hint.textContent = "WebP isn't available in this browser";
+  }
   document.querySelectorAll('#fmtSeg button').forEach(b => b.onclick = (e) => {
+    if (b.disabled) return;
     document.querySelectorAll('#fmtSeg button').forEach(x => x.classList.toggle('on', x === b));
     state.fmt = b.dataset.fmt;
-    updateGlider(e.target.closest('.seg'));
+    updateGlider(e.target.closest('.seg')); saveSettings();
   });
 
-  setTimeout(() => {
-      updateGlider($('modeSeg'));
-      updateGlider($('fmtSeg'));
-  }, 100);
+  document.querySelectorAll('#colorSeg button').forEach(b => b.onclick = (e) => {
+    document.querySelectorAll('#colorSeg button').forEach(x => x.classList.toggle('on', x === b));
+    state.gray = b.dataset.gray === '1';
+    updateGlider(e.target.closest('.seg')); saveSettings();
+  });
 
+  const allGliders = () => ['modeSeg', 'fmtSeg', 'colorSeg', 'themeSeg', 'setupSeg'].forEach(id => updateGlider($(id)));
+  setTimeout(allGliders, 100);
+  window.addEventListener('resize', allGliders);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(allGliders);
 
-  $('qSlider').oninput = () => $('qVal').textContent = $('qSlider').value + '%';
+  function syncSlider() { const q = $('qSlider'); $('qVal').textContent = q.value + '%'; q.style.setProperty('--fill', ((q.value - q.min) / (q.max - q.min) * 100) + '%'); }
+  $('qSlider').oninput = () => { syncSlider(); saveSettings(); };
+  $('targetMB').addEventListener('change', saveSettings);
+  $('zipName').addEventListener('change', saveSettings);
 
   /* ---------- zip ---------- */
   const sanitizeName = s => (s || '').replace(/[\\\/:*?"<>|]/g, '').replace(/[\u0000-\u001f]/g, '').trim();
@@ -1972,7 +2761,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   async function buildZip() {
     const zip = new JSZip();
-    const outer = sanitizeName($('folderName').value);
+    const outer = state.gc ? '' : sanitizeName($('folderName').value);
     // create entries for every folder so even empty ones show up in the zip
     for (const f of state.folders) {
       const parts = [outer, ...folderPathParts(f.id)].filter(Boolean);
@@ -1989,7 +2778,63 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   const setStatus = m => { $('status').textContent = m; };
-  const setProg = (p, msg) => { $('progBar').style.width = Math.round(p * 100) + '%'; if (msg !== undefined) setStatus(msg); };
+  const setProg = (p, msg) => {
+    $('progBar').style.width = Math.round(p * 100) + '%'; $('prog').setAttribute('aria-valuenow', Math.round(p * 100));
+    progRain.target = Math.max(0, Math.min(1, p)); if (!progRain.raf) progRainStart();
+    if (msg !== undefined) setStatus(msg);
+  };
+
+  /* ---------- progress bar: digital rain that fills as the work advances ----------
+     Columns behind the progress edge rain brightly in the theme's ink colour; columns ahead of it
+     rain faintly, so the strip reads as a bar at a glance. Runs only while the bar is on screen. */
+  const progRain = { raf: 0, last: 0, cols: [], w: 0, h: 0, dpr: 1, ctx: null, p: 0, target: 0, ink: '255,255,255' };
+  const PR_CHARS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789:.=*+-<>';
+  const PR_CELL = 11;
+  function progRainSize() {
+    const c = $('progRain'), r = c.getBoundingClientRect();
+    progRain.dpr = Math.min(2, window.devicePixelRatio || 1);
+    progRain.w = Math.max(1, r.width); progRain.h = Math.max(1, r.height);
+    c.width = Math.round(progRain.w * progRain.dpr); c.height = Math.round(progRain.h * progRain.dpr);
+    progRain.ctx = c.getContext('2d'); progRain.ctx.setTransform(progRain.dpr, 0, 0, progRain.dpr, 0, 0);
+    const n = Math.ceil(progRain.w / PR_CELL), rows = progRain.h / PR_CELL;
+    progRain.cols = Array.from({ length: n }, () => ({ y: Math.random() * rows * 2 - rows, v: 0.25 + Math.random() * 0.45 }));
+    progRain.ink = (getComputedStyle(document.documentElement).getPropertyValue('--ink') || '255,255,255').trim();
+  }
+  function progRainStep() {
+    const x = progRain.ctx; if (!x) return;
+    const W = progRain.w, H = progRain.h, rows = H / PR_CELL;
+    progRain.p += (progRain.target - progRain.p) * 0.25; // ease toward the real progress
+    x.globalCompositeOperation = 'destination-out'; x.fillStyle = 'rgba(0,0,0,0.22)'; x.fillRect(0, 0, W, H); // fade trails
+    x.globalCompositeOperation = 'source-over';
+    x.font = `600 ${PR_CELL}px "SF Mono", ui-monospace, Menlo, Consolas, monospace`; x.textBaseline = 'top';
+    const edge = progRain.p * W;
+    for (let i = 0; i < progRain.cols.length; i++) {
+      const c = progRain.cols[i], px = i * PR_CELL, prev = Math.floor(c.y);
+      c.y += c.v;
+      if (c.y > rows + 3) { c.y = -Math.random() * rows; c.v = 0.25 + Math.random() * 0.45; }
+      const row = Math.floor(c.y); if (row === prev || row < 0) continue;
+      const lit = px + PR_CELL * 0.5 <= edge;
+      const ch = PR_CHARS[(Math.random() * PR_CHARS.length) | 0];
+      x.fillStyle = `rgba(${progRain.ink},${lit ? 0.75 : 0.12})`;
+      x.fillText(PR_CHARS[(Math.random() * PR_CHARS.length) | 0], px, (row - 1) * PR_CELL);
+      x.fillStyle = lit ? '#fff' : `rgba(${progRain.ink},0.22)`;
+      x.fillText(ch, px, row * PR_CELL);
+    }
+  }
+  function progRainLoop(t) {
+    if ($('prog').style.display === 'none' || document.hidden) { progRain.raf = 0; return; }
+    progRain.raf = requestAnimationFrame(progRainLoop);
+    if (t - progRain.last < 42) return; // ~24 fps
+    progRain.last = t; progRainStep();
+  }
+  function progRainStart() {
+    if ($('prog').style.display === 'none') return;
+    progRainSize(); progRain.p = progRain.target;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { for (let i = 0; i < 40; i++) progRainStep(); return; }
+    progRain.raf = requestAnimationFrame(progRainLoop);
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !progRain.raf && $('prog').style.display !== 'none') progRain.raf = requestAnimationFrame(progRainLoop); });
+  window.addEventListener('resize', () => { if (progRain.raf) progRainSize(); });
 
   // Target search: find the highest quality whose total stays just under the target by BISECTING on
   // the actually-measured encoded size (size is monotonic in quality), seeded by a power-law guess so
@@ -2003,27 +2848,30 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   //   • If max quality (0.94) already fits at full res → done, best possible.
   //   • Else if the quality floor fits at full res → bisect quality UP to fill the budget at full res.
   //   • Else → keep quality at the floor and DOWNSCALE just enough to fit (then one measured tweak).
-  async function fitToTarget(targetBytes, onPass) {
-    const budget = targetBytes * 0.97;          // fill tightly; the real-zip guard trims rare overshoot
-    const Q_FLOOR = 0.72, Q_HI = 0.94;          // never drop JPEG quality below the floor — downscale instead
+  // Measured on real photos: at a fixed file size, JPEG quality ~0.6-0.65 with more pixels beats
+  // higher quality with fewer pixels (and lower quality starts to block). So that's the floor.
+  const Q_FLOOR = 0.64;
+  async function fitToTarget(targetBytes, onPass, skipPdf) {
+    const budget = targetBytes * 0.98;          // fill tightly; the real-zip guard trims rare overshoot
+    const Q_HI = 0.94;                          // never drop JPEG quality below Q_FLOOR — downscale instead
 
     // 1) Highest sensible quality, full resolution. If it fits, nothing beats it.
-    let tHi = await encodeAll(Q_HI, 1, (d, n) => onPass(1, d, n));
+    let tHi = await encodeAll(Q_HI, 1, (d, n) => onPass(1, d, n), false, skipPdf);
     if (tHi <= budget) return { q: Q_HI, scale: 1 };
 
     // 2) Quality floor, full resolution.
-    let tFloor = await encodeAll(Q_FLOOR, 1, (d, n) => onPass(2, d, n));
+    let tFloor = await encodeAll(Q_FLOOR, 1, (d, n) => onPass(2, d, n), false, skipPdf);
     if (tFloor <= budget) {
       // Full res fits at the floor → bisect quality upward to spend the rest of the budget on fidelity.
       let lo = Q_FLOOR, hi = Q_HI, best = { q: Q_FLOOR, t: tFloor }, lastQ = Q_FLOOR;
       for (let i = 0; i < 6; i++) {
         const q = (lo + hi) / 2;
-        const t = await encodeAll(q, 1, (d, n) => onPass(3, d, n));
+        const t = await encodeAll(q, 1, (d, n) => onPass(3, d, n), false, skipPdf);
         lastQ = q;
         if (t <= budget) { best = { q, t }; lo = q; } else hi = q;
         if (best.t >= budget * 0.94 || hi - lo < 0.015) break; // budget essentially full → quality maxed for this target
       }
-      if (lastQ !== best.q) await encodeAll(best.q, 1, () => {});
+      if (lastQ !== best.q) await encodeAll(best.q, 1, () => {}, false, skipPdf);
       return { q: best.q, scale: 1 };
     }
 
@@ -2032,16 +2880,17 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     //    put), then one measured correction so we sit just under the budget at the best resolution.
     const imgBytes = state.entries.reduce((s, e) => s + (e.kind === 'image' && e.out ? e.out.size : 0), 0);
     const nonImg = Math.max(0, tFloor - imgBytes);
-    let scale = Math.max(0.1, Math.min(1, Math.sqrt(Math.max(1, budget - nonImg) / Math.max(1, imgBytes))));
-    let t = await encodeAll(Q_FLOOR, scale, (d, n) => onPass(3, d, n));
+    const S_MIN = 0.3; // photos are never reduced below 30% of their dimensions; past that we report instead
+    let scale = Math.max(S_MIN, Math.min(1, Math.sqrt(Math.max(1, budget - nonImg) / Math.max(1, imgBytes))));
+    let t = await encodeAll(Q_FLOOR, scale, (d, n) => onPass(3, d, n), false, skipPdf);
     if (t > budget) {                                   // overshot → shrink a touch
-      scale = Math.max(0.06, scale * Math.sqrt((budget * 0.97) / Math.max(1, t)));
-      await encodeAll(Q_FLOOR, scale, () => {});
+      scale = Math.max(S_MIN, scale * Math.sqrt((budget * 0.97) / Math.max(1, t)));
+      await encodeAll(Q_FLOOR, scale, () => {}, false, skipPdf);
     } else if (t < budget * 0.88) {                     // well under → grow to fill the budget (sharper)
       const up = Math.min(1, scale * Math.sqrt((budget * 0.97) / Math.max(1, t)));
       if (up > scale * 1.03) {
-        const t2 = await encodeAll(Q_FLOOR, up, () => {});
-        if (t2 <= budget) scale = up; else await encodeAll(Q_FLOOR, scale, () => {}); // revert if it overshot
+        const t2 = await encodeAll(Q_FLOOR, up, () => {}, false, skipPdf);
+        if (t2 <= budget) scale = up; else await encodeAll(Q_FLOOR, scale, () => {}, false, skipPdf); // revert if it overshot
       }
     }
     return { q: Q_FLOOR, scale };
@@ -2049,28 +2898,364 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   // Real-zip safety net: nudge quality (then dimensions) down until the ACTUAL zip is under target,
   // keeping the best under-target result. A couple of passes at most. Used after each target search.
-  async function tightenToFit(targetBytes, q, scale) {
+  async function tightenToFit(targetBytes, q, scale, skipPdf) {
     let gq = q, gs = scale, guard = 0;
     let best = state.zipBlob.size <= targetBytes ? state.zipBlob : null;
     while (state.zipBlob.size > targetBytes && guard < 3) {
       guard++;
       const over = state.zipBlob.size / targetBytes;
-      if (gq > 0.10) gq = Math.max(0.08, gq / Math.pow(over, 0.72));
-      else gs = Math.max(0.04, gs / Math.sqrt(over));
-      setProg(.95, `Tightening to fit ${(targetBytes / 1048576).toFixed(0)} MB…`);
-      await encodeAll(gq, gs, () => {});
+      // quality floors hold here too: a little below the search floor, never to mush
+      if (gq > 0.5) gq = Math.max(0.5, gq / Math.pow(over, 0.72));
+      else if (gs > 0.3) gs = Math.max(0.3, gs / Math.sqrt(over));
+      else break;
+      setProg(.95, `Tightening to fit ${(targetBytes / 1e6).toFixed(0)} MB…`);
+      await encodeAll(gq, gs, () => {}, false, skipPdf);
       state.zipBlob = await buildZip();
       if (state.zipBlob.size <= targetBytes) best = state.zipBlob;
     }
-    if (state.zipBlob.size > targetBytes && best) state.zipBlob = best; // never ship over target
+    if (state.zipBlob.size > targetBytes && best) state.zipBlob = best; // prefer the last result that fit
   }
+
+
+  /* ---------- selection bar (works with mouse and touch; the way to organize files on phones) ---------- */
+  const selBar = $('selBar');
+  function updateSelBar() {
+    const n = state.selected.size;
+    selBar.classList.toggle('show', n > 0 && !state.busy);
+    if (n) $('selCount').textContent = `${n} selected`;
+  }
+  function moveSelectedTo(folderId) {
+    if (listLocked()) return;
+    let moved = false;
+    for (const id of state.selected) { const ent = state.entries.find(x => x.id === id); if (ent && ent.folderId !== folderId) { ent.folderId = folderId; moved = true; } }
+    if (folderId != null) { const f = state.folders.find(x => x.id === folderId); if (f) f.collapsed = false; }
+    if (moved) { state.zipBlob = null; render(); }
+  }
+  function moveMenuItems(prefix) {
+    const pre = prefix || '';
+    if (state.gc) return state.folders.filter(f => f.fixed).map(f => ({ label: pre + f.name, action: () => moveSelectedTo(f.id) }));
+    const items = [{ label: pre + 'Top level', action: () => moveSelectedTo(null) }];
+    for (const f of state.folders) items.push({ label: pre + folderPathParts(f.id).join(' / '), action: () => moveSelectedTo(f.id) });
+    items.push({ sep: true }, { label: pre + 'New folder', action: () => { const keep = [...state.selected]; addFolder(null); const nf = state.folders[state.folders.length - 1]; state.selected = new Set(keep); moveSelectedTo(nf.id); } });
+    return items;
+  }
+  selBar.addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    ev.stopPropagation();
+    if (b.dataset.act === 'move') { const r = b.getBoundingClientRect(); showCtx(r.left, r.top - 8, moveMenuItems(), true); }
+    else if (b.dataset.act === 'remove') { [...state.selected].forEach(removeEntry); }
+    else { state.selected.clear(); updateSelectionUI(); }
+  });
+
+  /* ---------- before / after viewer ---------- */
+  const viewer = $('viewer'), vStage = $('vStage'), vCanvas = $('vCanvas'), vClip = $('vClip'), vDivider = $('vDivider');
+  const V = { open: false, f: 0.5, s: 1, tx: 0, ty: 0, bw: 0, bh: 0, nw: 0, nh: 0, zoom: 2, urls: [], lastFocus: null };
+  function vLayout() {
+    if (!V.open) return;
+    const sw = vStage.clientWidth, sh = vStage.clientHeight;
+    const fit = Math.min(1, (sw - 24) / V.nw, (sh - 24) / V.nh);
+    V.bw = V.nw * fit; V.bh = V.nh * fit; V.zoom = Math.max(2, 1 / fit);
+    vCanvas.style.width = V.bw + 'px'; vCanvas.style.height = V.bh + 'px';
+    vApply();
+  }
+  function vApply() {
+    const sw = vStage.clientWidth, sh = vStage.clientHeight, w = V.bw * V.s, h = V.bh * V.s;
+    // keep the image covering the stage when zoomed; centered when it fits
+    V.tx = w <= sw ? (sw - w) / 2 : Math.min(0, Math.max(sw - w, V.tx));
+    V.ty = h <= sh ? (sh - h) / 2 : Math.min(0, Math.max(sh - h, V.ty));
+    vCanvas.style.transform = `translate(${V.tx}px, ${V.ty}px) scale(${V.s})`;
+    const x = V.f * sw;
+    vDivider.style.left = x + 'px';
+    vDivider.setAttribute('aria-valuenow', Math.round(V.f * 100));
+    const local = Math.max(0, Math.min(V.bw, (x - V.tx) / V.s)); // divider position in the image's own pixels
+    vClip.style.clipPath = `inset(0 0 0 ${local}px)`;
+    vStage.classList.toggle('zoomed', V.s > 1);
+    $('vZoom').textContent = V.s > 1 ? 'Fit' : 'Zoom in';
+  }
+  function vSetZoom(on, cx, cy) {
+    const sw = vStage.clientWidth, sh = vStage.clientHeight, ns = on ? V.zoom : 1;
+    if (cx == null) { cx = sw / 2; cy = sh / 2; }
+    const ix = (cx - V.tx) / V.s, iy = (cy - V.ty) / V.s; // keep the point under the cursor fixed
+    V.s = ns; V.tx = cx - ix * ns; V.ty = cy - iy * ns;
+    vApply();
+  }
+  function openViewer(e) {
+    if (!e.img || !e.out) return;
+    const same = e.out.blob === e.file;
+    const a = URL.createObjectURL(e.file), b = same ? a : URL.createObjectURL(e.out.blob);
+    V.urls = same ? [a] : [a, b];
+    const before = $('vBefore'), after = $('vAfter');
+    before.onload = () => { V.nw = before.naturalWidth || 1; V.nh = before.naturalHeight || 1; V.s = 1; V.f = 0.5; V.open = true; vLayout(); };
+    before.src = a; after.src = b;
+    $('vName').textContent = e.rel;
+    const pct = e.file.size ? Math.round(100 - e.out.size / e.file.size * 100) : 0;
+    $('vInfo').textContent = same ? 'Already as small as it gets — kept the original' : `${fmtBytes(e.file.size)} → ${fmtBytes(e.out.size)} · ${pct}% smaller · drag the divider, double-click to zoom`;
+    $('vTagL').textContent = 'Original · ' + fmtBytes(e.file.size);
+    $('vTagR').textContent = (same ? 'Original · ' : 'Compressed · ') + fmtBytes(e.out.size);
+    V.lastFocus = document.activeElement;
+    viewer.classList.add('show'); viewer.setAttribute('aria-hidden', 'false');
+    $('vClose').focus();
+  }
+  function closeViewer() {
+    if (!viewer.classList.contains('show')) return;
+    viewer.classList.remove('show'); viewer.setAttribute('aria-hidden', 'true'); V.open = false;
+    $('vBefore').removeAttribute('src'); $('vAfter').removeAttribute('src');
+    V.urls.forEach(u => URL.revokeObjectURL(u)); V.urls = [];
+    if (V.lastFocus && V.lastFocus.focus) V.lastFocus.focus();
+  }
+  $('vClose').onclick = closeViewer;
+  $('vZoom').onclick = () => vSetZoom(V.s <= 1);
+  window.addEventListener('resize', vLayout);
+  let vDrag = null, vLastTap = 0;
+  vStage.addEventListener('pointerdown', ev => {
+    if (!V.open) return;
+    const onDivider = !!ev.target.closest('.vdivider');
+    vDrag = { divider: onDivider || V.s <= 1, x: ev.clientX, y: ev.clientY, moved: false };
+    try { vStage.setPointerCapture(ev.pointerId); } catch (_) {}
+    if (vDrag.divider && onDivider) ev.preventDefault();
+  });
+  vStage.addEventListener('pointermove', ev => {
+    if (!vDrag) return;
+    const dx = ev.clientX - vDrag.x, dy = ev.clientY - vDrag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) vDrag.moved = true;
+    if (vDrag.divider) { const r = vStage.getBoundingClientRect(); V.f = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)); }
+    else { V.tx += dx; V.ty += dy; vDrag.x = ev.clientX; vDrag.y = ev.clientY; }
+    vApply();
+  });
+  const vEnd = ev => {
+    if (!vDrag) return;
+    const d = vDrag; vDrag = null;
+    if (d.moved || ev.type === 'pointercancel') return;
+    const now = performance.now(), r = vStage.getBoundingClientRect();
+    if (now - vLastTap < 320) { vLastTap = 0; vSetZoom(V.s <= 1, ev.clientX - r.left, ev.clientY - r.top); } // double-click / double-tap
+    else { vLastTap = now; if (d.divider) { V.f = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)); vApply(); } }
+  };
+  vStage.addEventListener('pointerup', vEnd); vStage.addEventListener('pointercancel', vEnd);
+  vStage.addEventListener('wheel', ev => { if (!V.open) return; ev.preventDefault(); if (V.s > 1) { V.tx -= ev.deltaX; V.ty -= ev.deltaY; vApply(); } }, { passive: false });
+  vDivider.addEventListener('keydown', ev => {
+    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { ev.preventDefault(); V.f = Math.max(0, Math.min(1, V.f + (ev.key === 'ArrowLeft' ? -0.02 : 0.02))); vApply(); }
+  });
+
+  /* ---------- keyboard, paste, touch niceties ---------- */
+  const typing = () => { const a = document.activeElement; return !!a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable) && a.type !== 'range'; };
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') { if (viewer.classList.contains('show')) closeViewer(); else if (ctx.classList.contains('show')) hideCtx(); else if (state.selected.size) { state.selected.clear(); updateSelectionUI(); } return; }
+    if (viewer.classList.contains('show')) {
+      if (ev.key === 'Tab') { // keep focus inside the dialog
+        const f = [$('vZoom'), $('vClose'), vDivider], i = f.indexOf(document.activeElement);
+        ev.preventDefault(); f[(i + (ev.shiftKey ? f.length - 1 : 1) + f.length) % f.length].focus();
+      }
+      return;
+    }
+    if (typing() || state.busy) return;
+    if ((ev.key === 'Delete' || ev.key === 'Backspace') && state.selected.size) { ev.preventDefault(); [...state.selected].forEach(removeEntry); }
+    else if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'a' && state.entries.length) { ev.preventDefault(); state.selected = new Set(state.entries.map(e => e.id)); updateSelectionUI(); }
+  });
+  document.addEventListener('paste', ev => {
+    if (typing()) return;
+    const files = ev.clipboardData ? [...ev.clipboardData.files] : [];
+    if (files.length) { ev.preventDefault(); ingest(files.map((f, i) => (f.name && f.name !== 'image.png') ? f : new File([f], `pasted-${Date.now()}-${i + 1}.${(f.type.split('/')[1] || 'png').replace('jpeg', 'jpg')}`, { type: f.type }))); }
+  });
+  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  if (coarse) {
+    $('dropTitle').textContent = 'Tap to add photos, PDFs or documents';
+    $('dropHint').textContent = 'Images · PDF · Word · Excel · PowerPoint · .zip — everything stays on this device';
+    if (!('webkitdirectory' in HTMLInputElement.prototype) || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) $('pickFolder').classList.add('hidden');
+  }
+
+  /* ---------- remembered settings ---------- */
+  const SKEY = 'compactr.settings.v1';
+  function saveSettings() {
+    if (state.gc) return; // GC's locked settings never overwrite the user's own
+    try { localStorage.setItem(SKEY, JSON.stringify({ mode: state.mode, fmt: state.fmt, gray: state.gray, q: +$('qSlider').value, target: $('targetMB').value, zip: $('zipName').value })); } catch (_) {}
+  }
+  function loadSettings() {
+    let s = null; try { s = JSON.parse(localStorage.getItem(SKEY) || 'null'); } catch (_) {}
+    if (!s || typeof s !== 'object') s = {};
+    $('qSlider').value = (s.q >= 1 && s.q <= 100) ? s.q : 90;
+    $('targetMB').value = +s.target > 0 ? s.target : 10;
+    $('zipName').value = (typeof s.zip === 'string' && s.zip) ? s.zip : 'compressed-images';
+    const press = (sel) => { const b = document.querySelector(sel); if (b) b.click(); };
+    press(`#modeSeg [data-mode="${s.mode === 'target' ? 'target' : 'quality'}"]`);
+    press(`#fmtSeg [data-fmt="${s.fmt === 'image/webp' && canWebp ? 'image/webp' : 'image/jpeg'}"]`);
+    press(`#colorSeg [data-gray="${s.gray ? 1 : 0}"]`);
+    syncSlider();
+  }
+
+  /* =============================================================================================
+     SETTINGS — theme (Default / 1 / 2) and default mode (Standard / GC). Remembered per browser.
+     ============================================================================================= */
+  const PKEY = 'compactr.prefs.v1';
+  const root = document.documentElement;
+  const prefs = (() => { try { const p = JSON.parse(localStorage.getItem(PKEY) || '{}'); return { theme: ['0', '1', '2'].includes(p.theme) ? p.theme : '0', gc: !!p.gc }; } catch (_) { return { theme: '0', gc: false }; } })();
+  const savePrefs = () => { try { localStorage.setItem(PKEY, JSON.stringify(prefs)); } catch (_) {} };
+  const pressSeg = (segId, attr, val) => {
+    const seg = $(segId);
+    seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset[attr] === String(val)));
+    updateGlider(seg);
+  };
+
+  const settingsCard = $('settingsCard'), settingsBtn = $('settingsBtn');
+  settingsBtn.innerHTML = svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>', 18);
+  function toggleSettings(open) {
+    const show = open === undefined ? settingsCard.classList.contains('hidden') : open;
+    settingsCard.classList.toggle('hidden', !show);
+    settingsBtn.setAttribute('aria-expanded', String(show));
+    if (show) { $('setNote').classList.toggle('hidden', !state.entries.length); updateGlider($('themeSeg')); updateGlider($('setupSeg')); }
+  }
+  settingsBtn.onclick = () => toggleSettings();
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !settingsCard.classList.contains('hidden') && !viewer.classList.contains('show')) toggleSettings(false); });
+
+  /* ---------- themes 1 + 2: digital rain behind the cards ---------- */
+  const rain = { cvs: $('rain'), ctx: null, raf: 0, last: 0, cols: [], w: 0, h: 0, ink: '0,255,65', head: '#d4ffe0' };
+  const RAIN_CHARS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789:.=*+-<>|';
+  const RAIN_CELL = 18, RAIN_FONT = '15px "SF Mono", ui-monospace, Menlo, Consolas, monospace';
+  const calm = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function rainSize() {
+    const c = rain.cvs; rain.w = c.width = window.innerWidth; rain.h = c.height = window.innerHeight; // 1x: it's a soft backdrop
+    rain.ctx = c.getContext('2d'); rain.ctx.fillStyle = '#000'; rain.ctx.fillRect(0, 0, rain.w, rain.h);
+    const n = Math.ceil(rain.w / RAIN_CELL);
+    rain.cols = Array.from({ length: n }, () => ({ y: Math.random() * -rain.h / RAIN_CELL * 1.2, v: 0.35 + Math.random() * 0.65 }));
+  }
+  function rainStep() {
+    const x = rain.ctx; if (!x) return;
+    x.fillStyle = 'rgba(0,0,0,0.085)'; x.fillRect(0, 0, rain.w, rain.h); // fading trails
+    x.font = RAIN_FONT; x.textBaseline = 'top';
+    const rows = rain.h / RAIN_CELL;
+    for (let i = 0; i < rain.cols.length; i++) {
+      const c = rain.cols[i], prev = Math.floor(c.y);
+      c.y += c.v;
+      const row = Math.floor(c.y);
+      if (row === prev || row < 0) continue;
+      const ch = RAIN_CHARS[(Math.random() * RAIN_CHARS.length) | 0], px = i * RAIN_CELL;
+      x.fillStyle = `rgba(${rain.ink},0.9)`; x.fillText(RAIN_CHARS[(Math.random() * RAIN_CHARS.length) | 0], px, (row - 1) * RAIN_CELL); // settle the previous head
+      x.fillStyle = rain.head; x.fillText(ch, px, row * RAIN_CELL);
+      if (row > rows && Math.random() > 0.975) { c.y = -Math.random() * 20; c.v = 0.35 + Math.random() * 0.65; }
+    }
+  }
+  function rainLoop(t) {
+    rain.raf = requestAnimationFrame(rainLoop);
+    const gap = state.busy ? 110 : 55; // ~18 fps, slower while compressing so the work gets the CPU
+    if (t - rain.last < gap) return;
+    rain.last = t; rainStep();
+  }
+  function rainStart() {
+    rainStop(); rainSize();
+    if (calm()) { for (let i = 0; i < 90; i++) rainStep(); return; } // reduced motion: a still frame
+    rain.raf = requestAnimationFrame(rainLoop);
+  }
+  function rainStop() { if (rain.raf) cancelAnimationFrame(rain.raf); rain.raf = 0; }
+  document.addEventListener('visibilitychange', () => { if (!root.classList.contains('mx')) return; if (document.hidden) rainStop(); else if (!rain.raf && !calm()) rain.raf = requestAnimationFrame(rainLoop); });
+  let rainResizeT = 0;
+  window.addEventListener('resize', () => { if (!root.classList.contains('mx')) return; clearTimeout(rainResizeT); rainResizeT = setTimeout(rainStart, 200); });
+
+  function applyTheme(t) {
+    prefs.theme = t; savePrefs();
+    root.classList.remove('mx', 't1', 't2');
+    if (t === '1' || t === '2') {
+      root.classList.add('mx', 't' + t);
+      rain.ink = t === '1' ? '0,255,65' : '190,190,190'; rain.head = t === '1' ? '#d4ffe0' : '#ffffff';
+      rainStart();
+    } else rainStop();
+    pressSeg('themeSeg', 'theme', t);
+    requestAnimationFrame(() => allGliders()); // monospace changes button widths
+  }
+  $('themeSeg').querySelectorAll('button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
+
+  /* ---------- GC mode ---------- */
+  const GC_SLOTS = ['condition', 'signature'];
+  const gcFolder = slot => state.folders.find(f => f.fixed && f.name === slot);
+  function ensureGcFolders() {
+    for (const slot of GC_SLOTS) if (!gcFolder(slot)) state.folders.push({ id: ++folderSeq, name: slot, parentId: null, collapsed: false, fixed: true });
+  }
+  function lockGcControls(resetColour) { // JPEG, under 10 MB — set on the real controls so every code path agrees
+    state.mode = 'target'; state.fmt = 'image/jpeg'; $('targetMB').value = '10';
+    pressSeg('modeSeg', 'mode', 'target'); pressSeg('fmtSeg', 'fmt', 'image/jpeg');
+    if (resetColour) { state.gray = false; pressSeg('colorSeg', 'gray', '0'); } // colour by default; black & white stays one tap away
+    $('qualityRow').classList.add('hidden'); $('targetRow').classList.remove('hidden');
+  }
+  const rpZipName = () => 'RP' + sanitizeName($('rpNum').value.trim().replace(/^rp\s*/i, '')).replace(/\s+/g, '');
+  function clearFiles(keepFolders) {
+    if (listLocked()) return;
+    state.entries.forEach(e => {
+      if (e.thumbUrl) revokeLater(e.thumbUrl);
+      if (useWorkers && e.wk && e.loaded) getPool().call(e.wk, { cmd: 'free', id: e.id });
+      if (e.bmp && e.bmp.close) e.bmp.close();
+      if (e._bmps) e._bmps.forEach(b => b && b.close && b.close());
+    });
+    state.entries = []; state.selected.clear();
+    if (!keepFolders) state.folders = [];
+    state.zipBlob = null; $('result').style.display = 'none';
+    render();
+  }
+  function setGc(on, initial) {
+    if (!initial && on === state.gc) return;
+    if (listLocked()) { pressSeg('setupSeg', 'gc', state.gc ? '1' : '0'); return; }
+    clearFiles(false); // the two modes organize files differently, so start each one clean
+    state.gc = on; prefs.gc = on; savePrefs();
+    root.classList.toggle('gc', on);
+    if (on) { ensureGcFolders(); lockGcControls(true); $('rpNum').value = ''; }
+    else loadSettings(); // back to the user's own standard settings
+    pressSeg('setupSeg', 'gc', on ? '1' : '0');
+    $('setNote').classList.add('hidden');
+    render();
+    requestAnimationFrame(() => allGliders());
+  }
+  $('setupSeg').querySelectorAll('button').forEach(b => b.onclick = () => setGc(b.dataset.gc === '1'));
+  $('newRp').onclick = () => { if (listLocked()) return; clearFiles(true); $('rpNum').value = ''; lockGcControls(true); }; // each job starts in colour
+  $('rpNum').addEventListener('input', () => { const v = $('rpNum'); if (/^rp/i.test(v.value)) v.value = v.value.replace(/^rp\s*/i, ''); });
+
+  // upload tiles: tap / Upload replaces that folder's files, "Add more" appends
+  let pickTarget = null;
+  const TILE_ICON = {
+    condition: svg('<path d="M3 8.5a2 2 0 0 1 2-2h2.2L8.8 4h6.4l1.6 2.5H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5Z"/><circle cx="12" cy="13" r="3.6"/>', 30),
+    signature: svg('<path d="M3 19c2.2 0 3-2.6 5.2-2.6S10.6 19 13 19"/><path d="M14.6 4.6l3.8 3.8L9.8 17H6v-3.8l8.6-8.6Z"/><path d="M16 20h5"/>', 30),
+  };
+  document.querySelectorAll('.gc-tile').forEach(tile => {
+    const slot = tile.dataset.slot;
+    tile.querySelector('.gc-ico').innerHTML = TILE_ICON[slot];
+    const pick = replace => { pickTarget = { slot, replace }; $('fileInput').click(); };
+    tile.addEventListener('click', ev => { const b = ev.target.closest('button'); pick(!(b && b.dataset.act === 'add')); });
+    tile.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === tile) { ev.preventDefault(); pick(true); } });
+  });
+  function renderGcTiles() {
+    if (!state.gc) return;
+    document.querySelectorAll('.gc-tile').forEach(tile => {
+      const f = gcFolder(tile.dataset.slot), files = f ? filesIn(f.id) : [];
+      const bytes = files.reduce((s, e) => s + e.file.size, 0);
+      tile.classList.toggle('filled', files.length > 0);
+      tile.querySelector('.gc-sub').textContent = files.length ? `${files.length} file${files.length !== 1 ? 's' : ''}, ${fmtBytes(bytes)}` : 'Tap or drop photos';
+      tile.querySelector('[data-act="replace"]').textContent = files.length ? 'Replace' : 'Upload';
+    });
+  }
+  // while dragging files over the window in GC mode, the half under the pointer is the destination
+  const gcHalves = [...document.querySelectorAll('.gc-half')];
+  function gcSlotAt(x, y) {
+    if (!gcHalves.some(h => h.offsetWidth)) { // overlay not showing: fall back to the halves' layout
+      const stacked = window.matchMedia && window.matchMedia('(max-width: 560px)').matches;
+      return (stacked ? y < window.innerHeight / 2 : x < window.innerWidth / 2) ? 'condition' : 'signature';
+    }
+    let best = 'condition', bestD = Infinity;
+    for (const h of gcHalves) {
+      const r = h.getBoundingClientRect(), dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom), d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = h.dataset.slot; }
+    }
+    return best;
+  }
+  document.addEventListener('dragover', e => {
+    if (!state.gc || state.internalDrag) return;
+    const s = gcSlotAt(e.clientX, e.clientY);
+    gcHalves.forEach(h => h.classList.toggle('hot', h.dataset.slot === s));
+  });
 
   $('go').onclick = async () => {
     if (state.busy || !state.entries.length) return;
-    state.busy = true; $('go').disabled = true; $('result').style.display = 'none';
-    $('prog').style.display = 'block'; setProg(0, 'Preparing…');
+    if (state.gc) lockGcControls();
+    state.busy = true; document.documentElement.classList.add('busy'); $('go').disabled = true; $('result').style.display = 'none'; updateSelBar();
+    $('prog').style.display = 'block'; progRain.raf && cancelAnimationFrame(progRain.raf); progRain.raf = 0; setProg(0, 'Preparing…'); $('go').textContent = 'Compacting…'; $('go').classList.add('busy');
     const t0 = performance.now();
-    let overTargetBy = 0, rasterizedPdf = false, keptTextSharp = false;
+    let targetBytes = 0, keptTextSharp = false;
+    for (const e of state.entries) { e.out = null; e.procErr = null; e.flat = false; }
     try {
       if (state.mode === 'quality') {
         const q = +$('qSlider').value / 100;
@@ -2078,82 +3263,115 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         setProg(.97, 'Packing zip…');
         state.zipBlob = await buildZip();
       } else {
-        const targetBytes = Math.max(0.1, +$('targetMB').value || 10) * 1048576;
+        targetBytes = Math.max(0.1, +$('targetMB').value || 10) * 1e6;
         const onPass = (pass, d, n) => setProg(Math.min(.9, ((pass - 1) + (n ? d / n : 0)) / 3.2), `Finding the right quality… (step ${pass} of 3)`);
-        let { q, scale } = await fitToTarget(targetBytes, onPass);
+        const pdfs = state.entries.filter(e => e.kind === 'pdf');
+        const sizeOf = e => e.out ? e.out.size : e.file.size;
+        // Stage 1 — PDFs optimized without touching their images much; photos searched to fit.
+        let { q, scale } = await fitToTarget(targetBytes, onPass, false);
         setProg(.92, 'Packing zip…');
         state.zipBlob = await buildZip();
-        await tightenToFit(targetBytes, q, scale);
-
-        // Escalation: still over target only because a text/vector PDF is being kept whole (the engine
-        // won't rasterize it by default, to protect its selectable text). The target is below the sum of
-        // the untouched originals, so the PDF must give up bytes. We try the GOOD way first.
-        if (state.zipBlob.size > targetBytes && !forcePdfRaster &&
-            state.entries.some(e => e.kind === 'pdf' && e._pdfKeepOriginal)) {
-          // FIRST: recompress only the embedded images and keep all vector text razor-sharp. For the
-          // common case (a mostly-text PDF with heavy covers/figures) this hits the target with the
-          // body text perfectly crisp and selectable — no flattening, no blur.
-          setProg(.45, 'Shrinking embedded images, keeping text sharp…');
-          let keep = { ok: false };
-          try { keep = await fitPdfKeepTextToTarget(targetBytes, onPass); } catch (_) { keep = { ok: false }; }
+        const pdfNow = pdfs.reduce((s, e) => s + sizeOf(e), 0);
+        // Stage 2 — rebalance when the batch is over target, or when photos had to be shrunk to make
+        // room for a PDF that hasn't given anything up yet. Each side gets a share of the budget in
+        // proportion to what it needs, so neither is crushed to spare the other.
+        if (pdfs.length && (state.zipBlob.size > targetBytes || (scale < 0.999 && pdfNow > targetBytes * 0.12))) {
+          const budget = targetBytes * 0.985;
+          await encodeAll(Q_FLOOR, 1, (d, n) => onPass(1, d, n), false, true);
+          const nonPdf = state.entries.reduce((s, e) => s + (e.kind !== 'pdf' ? sizeOf(e) : 0), 0);
+          const other = state.entries.reduce((s, e) => s + (isCompressible(e) ? 0 : e.file.size), 0);
+          const pdfBudget = Math.max((budget - other) * pdfNow / Math.max(1, pdfNow + nonPdf - other), budget - nonPdf);
+          let pdfSize = pdfNow;
+          if (pdfSize > pdfBudget) {
+            // First lever, invisible: store vector coordinates to 0.1pt (1/720 inch) instead of 0.01pt.
+            setProg(.35, 'Tightening vector detail inside PDFs…');
+            pdfTol = 0.1;
+            for (const e of pdfs) {
+              if (!e._pdfBase) continue;
+              const r = await optimizePdf(e, pdfBaseParams());
+              if (r && r.blob.size < sizeOf(e)) { e._pdfBase = r.blob; e.out = { blob: r.blob, size: r.blob.size, name: e.rel }; }
+            }
+            pdfSize = pdfs.reduce((s, e) => s + sizeOf(e), 0);
+          }
+          if (pdfSize > pdfBudget) {
+            setProg(.4, 'Shrinking images inside PDFs — text stays sharp…');
+            let ok = false;
+            try { ok = await fitPdfImagesToBudget(pdfBudget, onPass); } catch (_) { ok = false; }
+            if (ok) keptTextSharp = true;
+            else {
+              // Last resort: the fonts and vector content alone exceed the budget, so the only lever
+              // left is flattening pages to images.
+              setProg(.4, 'Flattening PDF pages to reach the target…');
+              forcePdfRaster = true;
+              try { await fitRasterPdfToTarget(pdfBudget, onPass); } finally { forcePdfRaster = false; }
+            }
+          }
+          ({ q, scale } = await fitToTarget(targetBytes, onPass, true)); // photos take what's left; PDFs frozen
           setProg(.92, 'Packing zip…');
           state.zipBlob = await buildZip();
-
-          // FALLBACK: if that couldn't reach the target (a truly scanned/image-only PDF, or fonts alone
-          // exceed the target), flatten pages to images as before — the only remaining lever.
-          if (state.zipBlob.size > targetBytes || !keep.ok) {
-            forcePdfRaster = true; rasterizedPdf = true;
-            setProg(.4, 'Rasterizing PDF pages to hit the target…');
-            for (const e of state.entries) if (e.kind === 'pdf') {
-              e._pdfAnalyzed = false; e._pages = null; e._grayPg = null; e._pdfKeepOriginal = false;
-              e._imgAnalyzed = false; e._imgList = null; e._pdflibDoc = null; // release the pdf-lib attempt
-            }
-            ({ q, scale } = await fitRasterPdfToTarget(targetBytes, onPass));
-            setProg(.92, 'Packing zip…');
-            state.zipBlob = await buildZip();
-            await tightenToFit(targetBytes, q, scale);
-            forcePdfRaster = false;
-          } else {
-            keptTextSharp = true;
-          }
+          await tightenToFit(targetBytes, q, scale, true);
+        } else {
+          await tightenToFit(targetBytes, q, scale, false);
         }
-        overTargetBy = Math.max(0, state.zipBlob.size - targetBytes);
       }
-      const before = state.entries.reduce((s, e) => s + e.file.size, 0);
-      $('beforeSize').textContent = fmtBytes(before);
-      $('afterSize').textContent = fmtBytes(state.zipBlob.size);
-      const saved = before > 0 ? Math.max(0, 100 - state.zipBlob.size / before * 100) : 0;
-      const secs = ((performance.now() - t0) / 1000).toFixed(1);
-      let msg = (saved > 0.5 ? `zip is ${saved.toFixed(0)}% smaller than the originals` : 'already as small as it gets') + ` · ${secs}s`;
-      if (overTargetBy > 0) msg = `couldn't reach the target — ${fmtBytes(state.zipBlob.size)} is the smallest these files compress to · ${secs}s`;
-      else if (rasterizedPdf) msg += ' · PDF flattened to page images to fit';
-      else if (keptTextSharp) msg += ' · PDF text kept sharp (images recompressed)';
-      $('savedPct').textContent = msg;
       setProg(1, '');
-      $('result').style.display = 'block';
-      render();
-      $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showResult({ secs: (performance.now() - t0) / 1000, targetBytes, keptTextSharp });
     } catch (err) {
       setProg(0, 'Something went wrong: ' + (err && err.message ? err.message : err));
     } finally {
-      // Release any cached bitmaps (target mode loads them into workers for multi-pass probing) so a
-      // batch of 18MP photos doesn't keep ~1.3GB of decoded pixels resident between runs.
+      // Release cached bitmaps, rendered pages and parsed PDFs so a big batch doesn't stay resident.
       for (const e of state.entries) {
         if (e.loaded && poolReady() && e.wk) { try { getPool().call(e.wk, { cmd: 'free', id: e.id }); } catch (_) {} }
         if (e.bmp && e.bmp.close) e.bmp.close();
         e.bmp = null; e.loaded = false; e._loadP = null;
-        // release the pdf-lib doc + cached JPEG bytes from any sharp-text PDF attempt
-        e._pdflibDoc = null; e._imgList = null; e._imgAnalyzed = false;
+        e._pdfBytes = null; e._pdfRef = null; e._pdfStruct = null; e._pdfBase = undefined; e._pdfNoImg = false; e._try = null; e._pages = null; e._grayPg = null;
       }
-      state.busy = false; $('go').disabled = !state.entries.length;
-      forcePdfRaster = false;
+      state.busy = false; document.documentElement.classList.remove('busy'); $('go').disabled = !state.entries.length; updateSelBar(); $('go').textContent = 'Compact'; $('go').classList.remove('busy');
+      forcePdfRaster = false; pdfTol = 0.01;
       setTimeout(() => { $('prog').style.display = 'none'; }, 600);
     }
   };
 
-  $('download').onclick = () => {
+  function showResult({ secs, targetBytes, keptTextSharp }) {
+    const before = state.entries.reduce((s, e) => s + e.file.size, 0), after = state.zipBlob.size;
+    $('beforeSize').textContent = fmtBytes(before);
+    const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (calm || before <= after) $('afterSize').textContent = fmtBytes(after);
+    else { // the number settles from the original size down to the result
+      const t0 = performance.now(), el = $('afterSize');
+      const tick = now => { const k = Math.min(1, (now - t0) / 650), ease = 1 - Math.pow(1 - k, 3); el.textContent = fmtBytes(Math.round(before + (after - before) * ease)); if (k < 1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }
+    const saved = before > 0 ? Math.max(0, 100 - after / before * 100) : 0;
+    const over = targetBytes && after > targetBytes;
+    $('savedPct').textContent = over
+      ? `couldn't reach ${fmtBytes(targetBytes)} — ${fmtBytes(after)} is the smallest these files get while staying readable`
+      : (saved > 0.5 ? `${saved.toFixed(0)}% smaller than the originals` : 'already as small as it gets');
+    $('meterBar').style.width = Math.max(2, Math.min(100, before ? after / before * 100 : 100)) + '%';
+    const chips = [`${state.entries.length} file${state.entries.length !== 1 ? 's' : ''}`];
+    if (before > after) chips.push(`saved ${fmtBytes(before - after)}`);
+    chips.push(`${secs.toFixed(1)}s`);
+    const pdfs = state.entries.filter(e => e.kind === 'pdf');
+    if (pdfs.some(e => e.flat)) chips.push('PDF flattened to page images to fit');
+    else if (pdfs.some(e => e.out && e.out.blob !== e.file)) chips.push(keptTextSharp ? 'PDF text kept sharp · images reduced' : 'PDF text kept sharp');
+    if (state.gray) chips.push('black & white');
+    const failed = state.entries.filter(e => e.procErr).length;
+    if (failed) chips.push(`${failed} kept as original`);
+    $('resultChips').replaceChildren(...chips.map(t => { const s = document.createElement('span'); s.className = 'chip'; s.textContent = t; return s; }));
+    $('result').style.display = 'block';
+    render();
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  const zipBaseName = () => state.gc ? rpZipName() : ($('zipName').value.trim().replace(/[\\\/:*?"<>|]/g, '') || 'compressed-images');
+  const desktop = window.electronAPI && window.electronAPI.isElectron ? window.electronAPI : null;
+  const savedMsg = (r, what) => { if (r && r.ok) setStatus(`Saved ${what} to ${r.filePath || r.dir}`); else if (r && r.error) setStatus("Couldn't save: " + r.error); };
+  $('download').onclick = async () => {
     if (!state.zipBlob) return;
-    const name = ($('zipName').value.trim().replace(/[\\\/:*?"<>|]/g, '') || 'compressed-images') + '.zip';
+    const name = zipBaseName() + '.zip';
+    if (desktop && desktop.saveZip) { // desktop app: native Save dialog, written straight to disk
+      try { savedMsg(await desktop.saveZip(await state.zipBlob.arrayBuffer(), name), name); return; } catch (_) { /* fall back to a normal download */ }
+    }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(state.zipBlob);
     a.download = name;
@@ -2166,6 +3384,23 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // the filename as "folder - name".
   $('downloadFiles').onclick = async () => {
     if (state.busy || !state.entries.length) return;
+    if (desktop && desktop.saveFiles) { // desktop app: pick a folder once; files keep their real folder structure
+      try {
+        const files = [];
+        for (const e of state.entries) {
+          const leaf = (e.out && e.out.name) ? e.out.name : e.rel, data = (e.out && e.out.blob) ? e.out.blob : e.file;
+          files.push({ path: [...folderPathParts(e.folderId), ...leaf.split('/').map(sanitizeName)].filter(Boolean).join('/'), data: await data.arrayBuffer() });
+        }
+        savedMsg(await desktop.saveFiles(files, zipBaseName()), 'files');
+        return;
+      } catch (_) { /* fall back to normal downloads */ }
+    }
+    if (coarse && navigator.canShare) { // phones: hand the files to the share sheet (Save to Files / Photos)
+      try {
+        const files = state.entries.map(e => { const leaf = (e.out && e.out.name) ? e.out.name : e.rel, data = (e.out && e.out.blob) ? e.out.blob : e.file; return new File([data], leaf.split('/').pop(), { type: data.type || 'application/octet-stream' }); });
+        if (navigator.canShare({ files })) { await navigator.share({ files }); return; }
+      } catch (err) { if (err && err.name === 'AbortError') return; }
+    }
     for (const e of state.entries) {
       const leaf = (e.out && e.out.name) ? e.out.name : e.rel;
       const data = (e.out && e.out.blob) ? e.out.blob : e.file;
@@ -2178,6 +3413,26 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       await new Promise(r => setTimeout(r, 250)); // pace downloads so the browser doesn't drop any
     }
   };
+
+  if (window.matchMedia && window.matchMedia('(hover: hover)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let raf = 0, last = null, lit = null;
+    document.addEventListener('pointermove', ev => {
+      last = ev; if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const c = last.target && last.target.closest ? last.target.closest('.card') : null;
+        if (lit && lit !== c) lit.classList.remove('lit');
+        lit = c; if (!c) return;
+        const r = c.getBoundingClientRect();
+        c.style.setProperty('--mx', (last.clientX - r.left) + 'px'); c.style.setProperty('--my', (last.clientY - r.top) + 'px');
+        c.classList.add('lit');
+      });
+    }, { passive: true });
+  }
+
+  loadSettings();
+  applyTheme(prefs.theme);
+  setGc(prefs.gc, true);
 })();
 </script>
 </body>

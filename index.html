@@ -1032,6 +1032,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .gc-acts { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 10px; }
   .gc-more { appearance: none; background: none; border: none; cursor: pointer; font: inherit; font-size: 12px; color: var(--text-dim); text-decoration: underline; padding: 4px; visibility: hidden; }
   .gc-tile.filled .gc-more { visibility: visible; }
+  .gc-more.gc-drive { visibility: visible; }
+  html:not(.drive) .drive-only { display: none !important; }
+  .picker-dialog { z-index: 100000 !important; }
+  .picker-dialog-bg { z-index: 99999 !important; }
   .gc-more:hover { color: rgb(var(--ink)); }
   .folder.fixed .fbtn { display: none; }
   .folder.fixed .folder-name { pointer-events: none; }
@@ -1211,17 +1215,18 @@ try { var p = JSON.parse(localStorage.getItem('compactr.prefs.v1') || '{}'), h =
       <div class="drop-actions">
         <button class="btn" id="pickFiles" type="button">Choose files</button>
         <button class="btn" id="pickFolder" type="button">Choose folder</button>
+        <button class="btn drive-only" id="pickDrive" type="button">Google Drive</button>
       </div>
     </div>
     <!-- GC mode: one upload tile per folder -->
     <div class="gc-drop" id="gcDrop">
       <div class="gc-tile" data-slot="condition" tabindex="0" role="button" aria-label="Upload condition photos">
         <span class="gc-ico"></span><b>condition</b><small class="gc-sub">Tap or drop photos</small>
-        <div class="gc-acts"><button class="btn sm" data-act="replace" type="button">Upload</button><button class="gc-more" data-act="add" type="button">Add more</button></div>
+        <div class="gc-acts"><button class="btn sm" data-act="replace" type="button">Upload</button><button class="gc-more" data-act="add" type="button">Add more</button><button class="gc-more gc-drive drive-only" data-act="drive" type="button">From Google Drive</button></div>
       </div>
       <div class="gc-tile" data-slot="signature" tabindex="0" role="button" aria-label="Upload signature photos">
         <span class="gc-ico"></span><b>signature</b><small class="gc-sub">Tap or drop photos</small>
-        <div class="gc-acts"><button class="btn sm" data-act="replace" type="button">Upload</button><button class="gc-more" data-act="add" type="button">Add more</button></div>
+        <div class="gc-acts"><button class="btn sm" data-act="replace" type="button">Upload</button><button class="gc-more" data-act="add" type="button">Add more</button><button class="gc-more gc-drive drive-only" data-act="drive" type="button">From Google Drive</button></div>
       </div>
     </div>
     <input type="file" id="fileInput" accept="image/*,application/pdf,.pdf,.docx,.docm,.dotx,.xlsx,.xlsm,.xltx,.pptx,.pptm,.potx,.odt,.ods,.odp,.zip" multiple hidden>
@@ -2410,6 +2415,85 @@ try { var p = JSON.parse(localStorage.getItem('compactr.prefs.v1') || '{}'), h =
 
   $('pickFiles').onclick = () => $('fileInput').click();
   $('pickFolder').onclick = () => $('folderInput').click();
+
+  /* ---------- Google Drive (hosted site only: needs a web origin and a connection) ---------- */
+  const DRIVE = { clientId: '511435007063-h60uqq5q686ig6lgvc2o330vptc4hkgj.apps.googleusercontent.com', appId: '511435007063', apiKey: 'AIzaSyAcxtYTTI_mG5TNvAn2rKsLWTpA8ILb8z8', scope: 'https://www.googleapis.com/auth/drive.file' };
+  const driveOK = /^https?:$/.test(location.protocol) && !(window.electronAPI && window.electronAPI.isElectron);
+  const GDOC = { // Google's own formats have no file to download: export them as Office files
+    'application/vnd.google-apps.document': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx'],
+    'application/vnd.google-apps.spreadsheet': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', '.xlsx'],
+    'application/vnd.google-apps.presentation': ['application/vnd.openxmlformats-officedocument.presentationml.presentation', '.pptx'],
+  };
+  const drive = { libs: null, token: null, exp: 0, busy: false };
+  const loadScript = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = true; s.onload = res; s.onerror = () => rej(new Error('offline')); document.head.appendChild(s); });
+  function driveLibs() {
+    if (!drive.libs) {
+      drive.libs = Promise.all([
+        loadScript('https://accounts.google.com/gsi/client'),
+        loadScript('https://apis.google.com/js/api.js').then(() => new Promise((res, rej) => window.gapi.load('picker', { callback: res, onerror: () => rej(new Error('offline')) }))),
+      ]).catch(err => { drive.libs = null; throw err; });
+    }
+    return drive.libs;
+  }
+  const driveToken = () => new Promise((res, rej) => {
+    if (drive.token && Date.now() < drive.exp) return res(drive.token);
+    const tc = window.google.accounts.oauth2.initTokenClient({
+      client_id: DRIVE.clientId, scope: DRIVE.scope,
+      callback: r => { if (r && r.access_token) { drive.token = r.access_token; drive.exp = Date.now() + ((+r.expires_in || 3600) - 120) * 1000; res(drive.token); } else rej(new Error((r && r.error) || 'denied')); },
+      error_callback: e => rej(new Error((e && e.type) || 'denied')),
+    });
+    tc.requestAccessToken({ prompt: '' });
+  });
+  const drivePick = token => new Promise(res => {
+    const P = window.google.picker;
+    const view = new P.DocsView(P.ViewId.DOCS).setIncludeFolders(true).setSelectFolderEnabled(false);
+    const b = new P.PickerBuilder().setOAuthToken(token).setAppId(DRIVE.appId).addView(view).enableFeature(P.Feature.MULTISELECT_ENABLED)
+      .setCallback(d => { if (d.action === P.Action.PICKED) res(d.docs || []); else if (d.action === P.Action.CANCEL) res([]); });
+    if (DRIVE.apiKey) b.setDeveloperKey(DRIVE.apiKey);
+    b.build().setVisible(true);
+  });
+  async function pickFromDrive(opt) {
+    if (listLocked() || drive.busy) return;
+    drive.busy = true;
+    try {
+      if (!navigator.onLine) throw new Error('offline');
+      setStatus('Opening Google Drive…');
+      await driveLibs();
+      const token = await driveToken();
+      setStatus('');
+      const docs = await drivePick(token);
+      if (!docs.length) return;
+      const files = []; let failed = 0;
+      for (let i = 0; i < docs.length; i++) {
+        const d = docs[i], g = GDOC[d.mimeType];
+        setStatus(`Downloading from Google Drive, ${i + 1} of ${docs.length}…`);
+        if (!g && /^application\/vnd\.google-apps\./.test(d.mimeType || '')) { failed++; continue; }
+        const base = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(d.id);
+        const r = await fetch(g ? `${base}/export?mimeType=${encodeURIComponent(g[0])}` : `${base}?alt=media&supportsAllDrives=true`, { headers: { Authorization: 'Bearer ' + token } });
+        if (r.status === 401) { drive.token = null; throw new Error('expired'); }
+        if (!r.ok) { failed++; continue; }
+        const blob = await r.blob();
+        const name = g ? (d.name || 'document') + g[1] : (d.name || 'file');
+        files.push(new File([blob], name, { type: g ? g[0] : (d.mimeType || guessType(name)) }));
+      }
+      if (files.length) await ingest(files, null, opt);
+      setStatus(failed ? `${failed} file${failed !== 1 ? 's' : ''} could not be downloaded from Google Drive.` : '');
+    } catch (err) {
+      const m = String(err && err.message);
+      setStatus(m === 'offline' ? 'Google Drive needs an internet connection.'
+        : m === 'expired' ? 'Google sign-in expired. Choose Google Drive again.'
+        : /popup_closed|access_denied|denied/.test(m) ? 'Google sign-in was cancelled.'
+        : /popup_failed/.test(m) ? 'The sign-in window was blocked. Allow pop-ups for this site and try again.'
+        : 'Could not get files from Google Drive.');
+    } finally { drive.busy = false; }
+  }
+  if (driveOK) {
+    document.documentElement.classList.add('drive');
+    $('pickDrive').onclick = () => pickFromDrive();
+    // load Google's scripts ahead of the tap so the sign-in window opens straight from it (browsers block late pop-ups)
+    const warm = () => { if (navigator.onLine) driveLibs().catch(() => {}); };
+    if (document.readyState === 'complete') setTimeout(warm, 1200); else window.addEventListener('load', () => setTimeout(warm, 1200));
+  }
   $('fileInput').onchange = e => { const t = pickTarget; pickTarget = null; ingest([...e.target.files], null, t || undefined); e.target.value = ''; };
   $('folderInput').onchange = e => { ingest(e.target.files); e.target.value = ''; };
   drop.onclick = e => { if (e.target.tagName !== 'BUTTON') $('fileInput').click(); };
@@ -3215,7 +3299,7 @@ try { var p = JSON.parse(localStorage.getItem('compactr.prefs.v1') || '{}'), h =
     const slot = tile.dataset.slot;
     tile.querySelector('.gc-ico').innerHTML = TILE_ICON[slot];
     const pick = replace => { pickTarget = { slot, replace }; $('fileInput').click(); };
-    tile.addEventListener('click', ev => { const b = ev.target.closest('button'); pick(!(b && b.dataset.act === 'add')); });
+    tile.addEventListener('click', ev => { const b = ev.target.closest('button'); if (b && b.dataset.act === 'drive') return pickFromDrive({ slot, replace: true }); pick(!(b && b.dataset.act === 'add')); });
     tile.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === tile) { ev.preventDefault(); pick(true); } });
   });
   function renderGcTiles() {
